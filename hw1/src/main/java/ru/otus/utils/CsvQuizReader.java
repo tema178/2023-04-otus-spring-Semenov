@@ -2,7 +2,7 @@ package ru.otus.utils;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import ru.otus.domain.QuizBody;
+import ru.otus.domain.Quiz;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,37 +14,62 @@ import java.util.List;
 
 public class CsvQuizReader implements QuizReader {
 
+    private static final String ARRAY_DELIMITER = ";";
+
+    private static final String QUESTION_FIELD_NAME = "question";
+
+    private static final String ANSWERS_FIELD_NAME = "answers";
+
+    private static final String NUMBER_OF_CORRECT_ANSWER_FIELD_NAME = "numberOfCorrectAnswer";
+
     private final String csvPath;
 
     public CsvQuizReader(String csvPath) {
         this.csvPath = csvPath;
     }
 
-    public List<QuizBody> getAllQuestions() throws IOException {
+    public List<Quiz> getAllQuestions() throws IOException {
         return parseCSV(getFileFromResourceAsStream());
     }
 
-    private List<QuizBody> parseCSV(InputStream csvInputStream) throws IOException {
+    private List<Quiz> parseCSV(InputStream csvInputStream) throws IOException {
         try (Reader in = new InputStreamReader(csvInputStream, StandardCharsets.UTF_8)) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder()
                     .setHeader().setSkipHeaderRecord(true).build().parse(in);
-            List<QuizBody> quizBodies = new ArrayList<>();
-            for (CSVRecord questionRecord : records) {
-                quizBodies.add(QuizBody.builder()
-                        .question(questionRecord.get("question"))
-                        .answers(List.of(questionRecord.get("answer").split(ARRAY_DELIMITER)))
-                        .numberOfTrueAnswer(Integer.parseInt(questionRecord.get("numberOfTrueAnswer"))).build());
+
+            List<Quiz> quizList = new ArrayList<>();
+            for (CSVRecord quizRecord : records) {
+                String question = quizRecord.get(QUESTION_FIELD_NAME);
+                List<String> answerValues = List.of(quizRecord.get(ANSWERS_FIELD_NAME).split(ARRAY_DELIMITER));
+                int numberOfCorrectAnswer = Integer.parseInt(quizRecord.get(NUMBER_OF_CORRECT_ANSWER_FIELD_NAME));
+                validateNumberOfCorrectAnswer(question, answerValues, numberOfCorrectAnswer);
+
+                List<Quiz.Answer> answers = new ArrayList<>();
+                for (int i = 0; i < answerValues.size(); i++) {
+                    answers.add(new Quiz.Answer(answerValues.get(i), i + 1 == numberOfCorrectAnswer));
+                }
+
+                quizList.add(new Quiz(question, answers));
             }
-            return quizBodies;
+            return quizList;
         }
     }
 
+    private static void validateNumberOfCorrectAnswer(String question,
+                                                      List<String> answerValues,
+                                                      int numberOfTrueAnswer) throws IOException {
+        if (numberOfTrueAnswer < 1 || numberOfTrueAnswer > answerValues.size()) {
+            throw new IOException(String.format(
+                    "Can't define correct answer. Value of %s for question '%s' should be in [1, %s]",
+                    NUMBER_OF_CORRECT_ANSWER_FIELD_NAME, question, answerValues.size()));
+        }
+    }
 
-    private InputStream getFileFromResourceAsStream() {
+    private InputStream getFileFromResourceAsStream() throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream(csvPath);
         if (inputStream == null) {
-            throw new IllegalArgumentException("file not found! " + csvPath);
+            throw new IOException(csvPath + " file not found.");
         } else {
             return inputStream;
         }

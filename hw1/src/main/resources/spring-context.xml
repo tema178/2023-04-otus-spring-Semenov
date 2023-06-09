@@ -4,19 +4,24 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="quizPrinter" class="ru.otus.utils.QuizPrinter"/>
+    <bean id="printService" class="ru.otus.service.PrintService"/>
+
+    <bean id="quizPrinter" class="ru.otus.utils.QuizPrinter">
+        <constructor-arg index="0" ref="printService"/>
+    </bean>
 
     <bean id="csvQuizReader" class="ru.otus.utils.CsvQuizReader">
         <constructor-arg index="0" value="quiz.csv"/>
     </bean>
 
-    <bean id="quizDao" class="ru.otus.dao.QuizDao">
+    <bean id="csvQuizDao" class="ru.otus.dao.CsvQuizDao">
         <constructor-arg index="0" ref="csvQuizReader"/>
     </bean>
 
     <bean id="quizService" class="ru.otus.service.QuizService">
-        <constructor-arg index="0" ref="quizDao"/>
+        <constructor-arg index="0" ref="csvQuizDao"/>
         <constructor-arg index="1" ref="quizPrinter"/>
+        <constructor-arg index="2" ref="printService"/>
     </bean>
 
 </beans>

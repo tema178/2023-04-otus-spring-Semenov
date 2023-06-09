@@ -1,12 +1,11 @@
 package ru.otus.utils;
 
-import ru.otus.domain.QuizBody;
+import ru.otus.domain.Quiz;
 
 import java.io.IOException;
 import java.util.List;
 
 public interface QuizReader {
-    String ARRAY_DELIMITER = ";";
 
-    List<QuizBody> getAllQuestions() throws IOException;
+    List<Quiz> getAllQuestions() throws IOException;
 }

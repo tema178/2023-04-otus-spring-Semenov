@@ -18,6 +18,7 @@
         <commons-csv.version>1.10.0</commons-csv.version>
         <checkstyle-plugin.version>3.1.2</checkstyle-plugin.version>
         <checkstyle.version>10.9.1</checkstyle.version>
+        <mockito.version>5.3.1</mockito.version>
         <checkstyle.config.url>https://raw.githubusercontent.com/OtusTeam/Spring/master/checkstyle.xml
         </checkstyle.config.url>
         <maven.compiler.source>17</maven.compiler.source>
@@ -47,9 +48,12 @@
       <artifactId>commons-csv</artifactId>
       <version>${commons-csv.version}</version>
     </dependency>
-
-
-
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

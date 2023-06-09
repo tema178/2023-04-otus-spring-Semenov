@@ -1,20 +1,12 @@
 package ru.otus.dao;
 
-import ru.otus.domain.QuizBody;
-import ru.otus.utils.QuizReader;
+import ru.otus.domain.Quiz;
+import ru.otus.exceptions.DaoException;
 
-import java.io.IOException;
 import java.util.List;
 
-public class QuizDao {
+public interface QuizDao {
 
-    private final QuizReader reader;
+    List<Quiz> getQuestions() throws DaoException;
 
-    public QuizDao(QuizReader reader) {
-        this.reader = reader;
-    }
-
-    public List<QuizBody> getQuestions() throws IOException {
-        return reader.getAllQuestions();
-    }
 }

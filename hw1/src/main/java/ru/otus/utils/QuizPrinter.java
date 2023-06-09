@@ -1,17 +1,24 @@
 package ru.otus.utils;
 
-import ru.otus.domain.QuizBody;
+import ru.otus.domain.Quiz;
+import ru.otus.service.PrintService;
 
 import java.util.List;
 
 public class QuizPrinter {
 
-    public void printQuiz(List<QuizBody> quizBodies) {
-        quizBodies.forEach(q -> {
-            System.out.println(q.getQuestion());
-            List<String> answers = q.getAnswers();
+    private final PrintService printService;
+
+    public QuizPrinter(PrintService printService) {
+        this.printService = printService;
+    }
+
+    public void printQuiz(List<Quiz> quizList) {
+        quizList.forEach(q -> {
+            printService.println(q.getQuestion());
+            List<Quiz.Answer> answers = q.getAnswers();
             for (int numberOfAnswer = 0; numberOfAnswer < answers.size(); numberOfAnswer++) {
-                System.out.printf("%s. %s%n", numberOfAnswer + 1, answers.get(numberOfAnswer));
+                printService.printf("%s. %s%n", numberOfAnswer + 1, answers.get(numberOfAnswer).getValue());
             }
         });
     }
