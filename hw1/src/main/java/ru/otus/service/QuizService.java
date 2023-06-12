@@ -10,19 +10,19 @@ public class QuizService {
 
     private final QuizPrinter quizPrinter;
 
-    private final PrintService printService;
+    private final StreamPrintService streamPrintService;
 
-    public QuizService(QuizDao quizCsvDao, QuizPrinter quizPrinter, PrintService printService) {
+    public QuizService(QuizDao quizCsvDao, QuizPrinter quizPrinter, StreamPrintService streamPrintService) {
         this.quizDao = quizCsvDao;
         this.quizPrinter = quizPrinter;
-        this.printService = printService;
+        this.streamPrintService = streamPrintService;
     }
 
     public void printQuiz() {
         try {
             quizPrinter.printQuiz(quizDao.getQuestions());
         } catch (DaoException e) {
-            printService.println(e.getMessage());
+            streamPrintService.printf("Application error: %s", e.getMessage());
         }
     }
 }

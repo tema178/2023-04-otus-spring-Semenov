@@ -2,7 +2,9 @@ package ru.otus.utils;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import ru.otus.domain.Answer;
 import ru.otus.domain.Quiz;
+import ru.otus.exceptions.QuizReaderException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +30,12 @@ public class CsvQuizReader implements QuizReader {
         this.csvPath = csvPath;
     }
 
-    public List<Quiz> getAllQuestions() throws IOException {
-        return parseCSV(getFileFromResourceAsStream());
+    public List<Quiz> getAllQuestions() throws QuizReaderException {
+        try {
+            return parseCSV(getFileFromResourceAsStream());
+        } catch (IOException e) {
+            throw new QuizReaderException(e);
+        }
     }
 
     private List<Quiz> parseCSV(InputStream csvInputStream) throws IOException {
@@ -44,9 +50,9 @@ public class CsvQuizReader implements QuizReader {
                 int numberOfCorrectAnswer = Integer.parseInt(quizRecord.get(NUMBER_OF_CORRECT_ANSWER_FIELD_NAME));
                 validateNumberOfCorrectAnswer(question, answerValues, numberOfCorrectAnswer);
 
-                List<Quiz.Answer> answers = new ArrayList<>();
+                List<Answer> answers = new ArrayList<>();
                 for (int i = 0; i < answerValues.size(); i++) {
-                    answers.add(new Quiz.Answer(answerValues.get(i), i + 1 == numberOfCorrectAnswer));
+                    answers.add(new Answer(answerValues.get(i), i + 1 == numberOfCorrectAnswer));
                 }
 
                 quizList.add(new Quiz(question, answers));
