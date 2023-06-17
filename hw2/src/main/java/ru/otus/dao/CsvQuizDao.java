@@ -1,5 +1,6 @@
 package ru.otus.dao;
 
+import org.springframework.stereotype.Repository;
 import ru.otus.domain.Quiz;
 import ru.otus.exceptions.DaoException;
 import ru.otus.exceptions.QuizReaderException;
@@ -7,6 +8,7 @@ import ru.otus.utils.QuizReader;
 
 import java.util.List;
 
+@Repository
 public class CsvQuizDao implements QuizDao {
 
     private final QuizReader reader;

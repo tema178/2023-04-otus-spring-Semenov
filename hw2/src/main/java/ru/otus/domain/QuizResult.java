@@ -7,11 +7,11 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class Quiz {
+public class QuizResult {
 
-    private String question;
+    private List<Quiz> quizList;
 
-    private List<Answer> answers;
+    private Person respondent;
 
-
+    private int countOfTrueAnswers;
 }

@@ -7,24 +7,24 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>untitled2</name>
+  <name>hw2</name>
   <url>http://maven.apache.org</url>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>6.0.9</spring.version>
-        <junit.jupiter.version>5.9.2</junit.jupiter.version>
-      <assertj.version>3.24.2</assertj.version>
-        <lombok.version>1.18.28</lombok.version>
-        <commons-csv.version>1.10.0</commons-csv.version>
-        <checkstyle-plugin.version>3.1.2</checkstyle-plugin.version>
-        <checkstyle.version>10.9.1</checkstyle.version>
-        <mockito.version>5.3.1</mockito.version>
-        <checkstyle.config.url>https://raw.githubusercontent.com/OtusTeam/Spring/master/checkstyle.xml
-        </checkstyle.config.url>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-    </properties>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring.version>6.0.9</spring.version>
+    <junit.jupiter.version>5.9.2</junit.jupiter.version>
+    <assertj.version>3.24.2</assertj.version>
+    <lombok.version>1.18.28</lombok.version>
+    <commons-csv.version>1.10.0</commons-csv.version>
+    <checkstyle-plugin.version>3.1.2</checkstyle-plugin.version>
+    <checkstyle.version>10.9.1</checkstyle.version>
+    <mockito.version>5.3.1</mockito.version>
+    <checkstyle.config.url>https://raw.githubusercontent.com/OtusTeam/Spring/master/checkstyle.xml
+    </checkstyle.config.url>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+  </properties>
 
   <dependencies>
     <dependency>

@@ -3,15 +3,11 @@ package ru.otus.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
-public class Quiz {
+public class Person {
 
-    private String question;
+    private String name;
 
-    private List<Answer> answers;
-
-
+    private String surname;
 }

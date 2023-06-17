@@ -5,40 +5,48 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.otus.dao.CsvQuizDao;
 import ru.otus.domain.Answer;
 import ru.otus.domain.Quiz;
-import ru.otus.exceptions.DaoException;
-import ru.otus.service.StreamPrintService;
+import ru.otus.service.IOServiceStreams;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 
 @ExtendWith(MockitoExtension.class)
 class QuizPrinterTest {
 
     @Mock
-    private CsvQuizDao csvQuizDao;
+    private IOServiceStreams streamPrintService;
 
     @DisplayName("Test quiz print format")
     @Test
-    void printQuizTest() throws DaoException {
+    void printQuizTest() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
-        StreamPrintService streamPrintService = new StreamPrintService(ps);
 
-        List<Quiz> quizData = List.of(new Quiz("Anemophobia is the fear of what?",
+        Quiz quizData = new Quiz("Anemophobia is the fear of what?",
                 List.of(new Answer("Dark", false),
                         new Answer("Fire", false),
-                        new Answer("Wind", true))));
+                        new Answer("Wind", true)));
 
-        given(csvQuizDao.getQuestions()).willReturn(quizData);
+        doAnswer(invocationOnMock -> {
+            ps.println(invocationOnMock.getArgument(0).toString());
+            return null;
+        }).when(streamPrintService).outputString(anyString());
 
-        new QuizPrinter(streamPrintService).printQuiz(csvQuizDao.getQuestions());
+        doAnswer(invocationOnMock -> {
+            ps.printf(invocationOnMock.getArgument(0).toString(), invocationOnMock.getArgument(1),
+                    invocationOnMock.getArgument(2));
+            return null;
+        }).when(streamPrintService).outputFormatString(anyString(), any(), any());
+
+        new QuizPrinter(streamPrintService).printQuiz(quizData);
 
         assertEquals(baos.toString(), """
                 Anemophobia is the fear of what?

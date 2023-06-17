@@ -2,6 +2,9 @@ package ru.otus.utils;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 import ru.otus.domain.Answer;
 import ru.otus.domain.Quiz;
 import ru.otus.exceptions.QuizReaderException;
@@ -14,6 +17,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
+@PropertySource("application.properties")
 public class CsvQuizReader implements QuizReader {
 
     private static final String ARRAY_DELIMITER = ";";
@@ -26,7 +31,7 @@ public class CsvQuizReader implements QuizReader {
 
     private final String csvPath;
 
-    public CsvQuizReader(String csvPath) {
+    public CsvQuizReader(@Value("${csvPath}") String csvPath) {
         this.csvPath = csvPath;
     }
 
