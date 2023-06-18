@@ -19,15 +19,15 @@ public class QuizService {
 
     private final QuizPrinter quizPrinter;
 
-    private final IOServiceStreams ioServiceStreams;
+    private final IOService ioService;
 
     private final SimpleQuizResultPrinter simpleQuizResultPrinter;
 
-    public QuizService(QuizDao quizCsvDao, QuizPrinter quizPrinter, IOServiceStreams ioServiceStreams,
+    public QuizService(QuizDao quizCsvDao, QuizPrinter quizPrinter, IOService ioService,
                        SimpleQuizResultPrinter simpleQuizResultPrinter) {
         this.quizDao = quizCsvDao;
         this.quizPrinter = quizPrinter;
-        this.ioServiceStreams = ioServiceStreams;
+        this.ioService = ioService;
         this.simpleQuizResultPrinter = simpleQuizResultPrinter;
     }
 
@@ -37,13 +37,13 @@ public class QuizService {
             QuizResult quizResult = conductQuiz(person);
             simpleQuizResultPrinter.printResult(quizResult);
         } catch (DaoException e) {
-            ioServiceStreams.outputFormatString("Application error: %s", e.getMessage());
+            ioService.outputFormatString("Application error: %s", e.getMessage());
         }
     }
 
     private Person getRespondentData() {
-        String name = ioServiceStreams.readStringWithPrompt("Input your name: ");
-        String surname = ioServiceStreams.readStringWithPrompt("Input your surname: ");
+        String name = ioService.readStringWithPrompt("Input your name: ");
+        String surname = ioService.readStringWithPrompt("Input your surname: ");
         return new Person(name, surname);
     }
 
@@ -69,12 +69,12 @@ public class QuizService {
         do {
             String incorrectInput = "Incorrect value. Please, try again: ";
             try {
-                numberOfSelectedAnswer = ioServiceStreams.readIntWithPrompt("Input number of true answer: ");
+                numberOfSelectedAnswer = ioService.readIntWithPrompt("Input number of true answer: ");
             } catch (NumberFormatException e) {
-                ioServiceStreams.outputString(incorrectInput);
+                ioService.outputString(incorrectInput);
             }
             if (numberOfAnswerInRange(quiz.getAnswers(), numberOfSelectedAnswer)) {
-                ioServiceStreams.outputString(incorrectInput);
+                ioService.outputString(incorrectInput);
             }
         } while (numberOfAnswerInRange(quiz.getAnswers(), numberOfSelectedAnswer));
         return numberOfSelectedAnswer;

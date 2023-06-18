@@ -48,12 +48,12 @@ class QuizPrinterTest {
 
         new QuizPrinter(streamPrintService).printQuiz(quizData);
 
-        assertEquals(baos.toString(), """
+        String expected = """
                 Anemophobia is the fear of what?
                 1. Dark
                 2. Fire
                 3. Wind
-                """);
-
+                """.replaceAll("\n", System.lineSeparator());
+        assertEquals(baos.toString(), expected);
     }
 }
