@@ -8,7 +8,7 @@ import ru.otus.domain.Quiz;
 import ru.otus.domain.QuizResult;
 import ru.otus.exceptions.DaoException;
 import ru.otus.utils.QuizPrinter;
-import ru.otus.utils.SimpleQuizResultPrinter;
+import ru.otus.utils.QuizResultPrinter;
 
 import java.util.List;
 
@@ -21,21 +21,21 @@ public class QuizService {
 
     private final IOService ioService;
 
-    private final SimpleQuizResultPrinter simpleQuizResultPrinter;
+    private final QuizResultPrinter quizResultPrinter;
 
     public QuizService(QuizDao quizCsvDao, QuizPrinter quizPrinter, IOService ioService,
-                       SimpleQuizResultPrinter simpleQuizResultPrinter) {
+                       QuizResultPrinter quizResultPrinter) {
         this.quizDao = quizCsvDao;
         this.quizPrinter = quizPrinter;
         this.ioService = ioService;
-        this.simpleQuizResultPrinter = simpleQuizResultPrinter;
+        this.quizResultPrinter = quizResultPrinter;
     }
 
     public void startQuiz() {
         try {
             Person person = getRespondentData();
             QuizResult quizResult = conductQuiz(person);
-            simpleQuizResultPrinter.printResult(quizResult);
+            quizResultPrinter.printResult(quizResult);
         } catch (DaoException e) {
             ioService.outputFormatString("Application error: %s", e.getMessage());
         }
