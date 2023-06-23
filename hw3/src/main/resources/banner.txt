@@ -1,0 +1,11 @@
+${AnsiBackground.RED}
+     /\__/\
+    /`    '\    Cat's quiz
+  === 0  0 ===
+    \  --  /
+   /        \
+  /          \
+ |            |
+  \  ||  ||  /
+   \_oo__oo_/#######o
+${AnsiBackground.DEFAULT}

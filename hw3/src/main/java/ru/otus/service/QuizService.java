@@ -67,11 +67,12 @@ public class QuizService {
     private int readUserAnswer(Quiz quiz) {
         int numberOfSelectedAnswer = 0;
         do {
-            String incorrectInput = "Incorrect value. Please, try again: ";
+            String incorrectInput = "Incorrect value. Please, try again.";
             try {
                 numberOfSelectedAnswer = ioService.readIntWithPrompt("Input number of true answer: ");
             } catch (NumberFormatException e) {
                 ioService.outputString(incorrectInput);
+                continue;
             }
             if (numberOfAnswerInRange(quiz.getAnswers(), numberOfSelectedAnswer)) {
                 ioService.outputString(incorrectInput);
