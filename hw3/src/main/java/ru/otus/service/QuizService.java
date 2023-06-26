@@ -1,6 +1,8 @@
 package ru.otus.service;
 
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+import ru.otus.config.LocaleProvider;
 import ru.otus.dao.QuizDao;
 import ru.otus.domain.Answer;
 import ru.otus.domain.Person;
@@ -13,7 +15,8 @@ import ru.otus.utils.QuizResultPrinter;
 import java.util.List;
 
 @Service
-public class QuizService {
+@SuppressWarnings("unused")
+public class QuizService implements QuizServiceInterface{
 
     private final QuizDao quizDao;
 
@@ -23,12 +26,19 @@ public class QuizService {
 
     private final QuizResultPrinter quizResultPrinter;
 
+    private final MessageSource messageSource;
+
+    private final LocaleProvider localeProvider;
+
     public QuizService(QuizDao quizCsvDao, QuizPrinter quizPrinter, IOService ioService,
-                       QuizResultPrinter quizResultPrinter) {
+                       QuizResultPrinter quizResultPrinter, MessageSource messageSource,
+                       LocaleProvider localeProvider) {
         this.quizDao = quizCsvDao;
         this.quizPrinter = quizPrinter;
         this.ioService = ioService;
         this.quizResultPrinter = quizResultPrinter;
+        this.messageSource = messageSource;
+        this.localeProvider = localeProvider;
     }
 
     public void startQuiz() {
@@ -37,13 +47,16 @@ public class QuizService {
             QuizResult quizResult = conductQuiz(person);
             quizResultPrinter.printResult(quizResult);
         } catch (DaoException e) {
-            ioService.outputFormatString("Application error: %s", e.getMessage());
+            ioService.outputString(messageSource.getMessage(
+                    "app.error.1", new String [] {e.getMessage()}, localeProvider.getLocale()));
         }
     }
 
     private Person getRespondentData() {
-        String name = ioService.readStringWithPrompt("Input your name: ");
-        String surname = ioService.readStringWithPrompt("Input your surname: ");
+        String name = ioService.readStringWithPrompt(messageSource.getMessage(
+                "quiz.service.1", null, localeProvider.getLocale()));
+        String surname = ioService.readStringWithPrompt(messageSource.getMessage(
+                "quiz.service.2", null, localeProvider.getLocale()));
         return new Person(name, surname);
     }
 
@@ -67,9 +80,11 @@ public class QuizService {
     private int readUserAnswer(Quiz quiz) {
         int numberOfSelectedAnswer = 0;
         do {
-            String incorrectInput = "Incorrect value. Please, try again.";
+            String incorrectInput = messageSource.getMessage(
+                    "quiz.service.3", null, localeProvider.getLocale());
             try {
-                numberOfSelectedAnswer = ioService.readIntWithPrompt("Input number of true answer: ");
+                numberOfSelectedAnswer = ioService.readIntWithPrompt(messageSource.getMessage(
+                        "quiz.service.4", null, localeProvider.getLocale()));
             } catch (NumberFormatException e) {
                 ioService.outputString(incorrectInput);
                 continue;

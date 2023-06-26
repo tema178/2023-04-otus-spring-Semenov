@@ -4,7 +4,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.otus.service.IOServiceStreams;
-import ru.otus.service.OutputService;
 
 @Configuration
 @EnableConfigurationProperties(AppProps.class)
@@ -12,7 +11,7 @@ import ru.otus.service.OutputService;
 public class ServiceConfig {
 
     @Bean
-    public OutputService printService(){
+    public IOServiceStreams printService(){
         return new IOServiceStreams(System.out, System.in);
     }
 }

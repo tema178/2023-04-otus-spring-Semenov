@@ -1,8 +1,10 @@
 package ru.otus.utils;
 
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
-import ru.otus.config.AppProps;
+import ru.otus.config.CountOfAnswersForPassQuizProvider;
+import ru.otus.config.LocaleProvider;
 import ru.otus.domain.QuizResult;
 import ru.otus.service.OutputService;
 
@@ -15,18 +17,27 @@ public class SimpleQuizResultPrinter implements QuizResultPrinter {
 
     private final int countOfAnswersForPassQuiz;
 
-    public SimpleQuizResultPrinter(OutputService printService, AppProps appProps) {
+    private final MessageSource messageSource;
+
+    private final LocaleProvider localeProvider;
+
+    public SimpleQuizResultPrinter(OutputService printService, CountOfAnswersForPassQuizProvider countOfAnswersProvider,
+                                   MessageSource messageSource, LocaleProvider localeProvider) {
         this.printService = printService;
-        this.countOfAnswersForPassQuiz = appProps.getCountOfAnswersForPassQuiz();
+        this.countOfAnswersForPassQuiz = countOfAnswersProvider.getCountOfAnswersForPassQuiz();
+        this.messageSource = messageSource;
+        this.localeProvider = localeProvider;
     }
 
     public void printResult(QuizResult result) {
-        printService.outputString("Quiz result:");
+        printService.outputString(messageSource.getMessage("quiz.result.1",null,localeProvider.getLocale()));
         printService.outputFormatString("%s %s", result.getRespondent().getName(), result.getRespondent().getSurname());
         String quizPassedText = isQuizPassed(result.getCountOfTrueAnswers()) ?
-                "\nCorrect answers: %s. Congratulation! Quiz passed!" :
-                "\nCorrect answers: %s. Quiz failed.";
-        printService.outputFormatString(quizPassedText, result.getCountOfTrueAnswers());
+                messageSource.getMessage(
+                        "quiz.result.2", new Integer[] {result.getCountOfTrueAnswers()},localeProvider.getLocale()) :
+                messageSource.getMessage(
+                        "quiz.result.3",new Integer[] {result.getCountOfTrueAnswers()},localeProvider.getLocale());
+        printService.outputString(quizPassedText);
     }
 
     private boolean isQuizPassed(int countOfTrueAnswers) {

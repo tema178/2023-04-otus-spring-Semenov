@@ -2,10 +2,8 @@ package ru.otus.utils;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
-import ru.otus.config.AppProps;
+import ru.otus.config.CsvPathProvider;
 import ru.otus.domain.Answer;
 import ru.otus.domain.Quiz;
 import ru.otus.exceptions.QuizReaderException;
@@ -19,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@PropertySource("application.yaml")
 public class CsvQuizReader implements QuizReader {
 
     private static final String ARRAY_DELIMITER = ";";
@@ -30,10 +27,10 @@ public class CsvQuizReader implements QuizReader {
 
     private static final String NUMBER_OF_CORRECT_ANSWER_FIELD_NAME = "numberOfCorrectAnswer";
 
-    private final String csvPath;
+    private final CsvPathProvider csvPathProvider;
 
-    public CsvQuizReader(MessageSource messageSource, AppProps appProps) {
-        this.csvPath = messageSource.getMessage("csvPath",null,appProps.getLocale());
+    public CsvQuizReader(CsvPathProvider csvPathProvider) {
+        this.csvPathProvider = csvPathProvider;
     }
 
     public List<Quiz> getAllQuestions() throws QuizReaderException {
@@ -79,9 +76,9 @@ public class CsvQuizReader implements QuizReader {
 
     private InputStream getFileFromResourceAsStream() throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream(csvPath);
+        InputStream inputStream = classLoader.getResourceAsStream(csvPathProvider.getCsvPath());
         if (inputStream == null) {
-            throw new IOException(csvPath + " file not found.");
+            throw new IOException(csvPathProvider + " file not found.");
         } else {
             return inputStream;
         }

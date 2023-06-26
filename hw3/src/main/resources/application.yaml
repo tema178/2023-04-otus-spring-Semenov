@@ -4,5 +4,8 @@ spring:
     encoding: "UTF-8"
 
 application:
-  locale: en_RU
+  locale: ru_EN
   countOfAnswersForPassQuiz : 3
+  csvPath:
+    default: quiz.csv
+    ru: quiz_ru.csv
