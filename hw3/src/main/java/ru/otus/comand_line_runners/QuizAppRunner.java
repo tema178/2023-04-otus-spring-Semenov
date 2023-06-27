@@ -2,15 +2,15 @@ package ru.otus.comand_line_runners;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import ru.otus.service.QuizServiceInterface;
+import ru.otus.service.QuizService;
 
 @Component
 @SuppressWarnings("unused")
 public class QuizAppRunner implements CommandLineRunner {
 
-    private final QuizServiceInterface quizService;
+    private final QuizService quizService;
 
-    public QuizAppRunner(QuizServiceInterface quizService) {
+    public QuizAppRunner(QuizService quizService) {
         this.quizService = quizService;
     }
 
