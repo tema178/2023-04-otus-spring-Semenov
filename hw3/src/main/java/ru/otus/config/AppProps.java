@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 
 @ConfigurationProperties(prefix = "application")
-public class AppProps implements LocaleProvider, CsvPathProvider, CountOfAnswersForPassQuizProvider {
+public class AppProps implements LocaleProvider, PathProvider, CountOfAnswersForPassQuizProvider {
 
     public static final String DEFAULT_PATH_PROPERTY_KEY = "default";
 
@@ -36,7 +36,7 @@ public class AppProps implements LocaleProvider, CsvPathProvider, CountOfAnswers
     }
 
     @Override
-    public String getCsvPath() {
+    public String getPath() {
         return csvPaths.getOrDefault(locale.getLanguage(), csvPaths.get(DEFAULT_PATH_PROPERTY_KEY));
     }
 }

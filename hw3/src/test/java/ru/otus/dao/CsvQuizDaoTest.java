@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.otus.config.CsvPathProvider;
+import ru.otus.config.PathProvider;
 import ru.otus.domain.Answer;
 import ru.otus.domain.Quiz;
 import ru.otus.exceptions.DaoException;
@@ -20,14 +20,14 @@ import static org.mockito.BDDMockito.given;
 class CsvQuizDaoTest {
 
     @Mock
-    private CsvPathProvider csvPathProvider;
+    private PathProvider pathProvider;
 
 
     @Test
     @DisplayName("Integration test of reading quiz from csv")
     void csvQuizDaoIntegrationTest() throws DaoException {
-        given(csvPathProvider.getCsvPath()).willReturn("quizTest.csv");
-        CsvQuizDao csvQuizDao = new CsvQuizDao(new CsvQuizReader(csvPathProvider));
+        given(pathProvider.getPath()).willReturn("quizTest.csv");
+        CsvQuizDao csvQuizDao = new CsvQuizDao(new CsvQuizReader(pathProvider));
         List<Quiz> quizActual = csvQuizDao.getQuestions();
         List<Quiz> quizExpected = List.of(
                 new Quiz("The song 'An Englishman in New York' was about which man?",

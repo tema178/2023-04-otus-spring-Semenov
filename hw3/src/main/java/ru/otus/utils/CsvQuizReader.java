@@ -3,7 +3,7 @@ package ru.otus.utils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Component;
-import ru.otus.config.CsvPathProvider;
+import ru.otus.config.PathProvider;
 import ru.otus.domain.Answer;
 import ru.otus.domain.Quiz;
 import ru.otus.exceptions.QuizReaderException;
@@ -27,10 +27,10 @@ public class CsvQuizReader implements QuizReader {
 
     private static final String NUMBER_OF_CORRECT_ANSWER_FIELD_NAME = "numberOfCorrectAnswer";
 
-    private final CsvPathProvider csvPathProvider;
+    private final PathProvider pathProvider;
 
-    public CsvQuizReader(CsvPathProvider csvPathProvider) {
-        this.csvPathProvider = csvPathProvider;
+    public CsvQuizReader(PathProvider pathProvider) {
+        this.pathProvider = pathProvider;
     }
 
     public List<Quiz> getAllQuestions() throws QuizReaderException {
@@ -76,9 +76,9 @@ public class CsvQuizReader implements QuizReader {
 
     private InputStream getFileFromResourceAsStream() throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream(csvPathProvider.getCsvPath());
+        InputStream inputStream = classLoader.getResourceAsStream(pathProvider.getPath());
         if (inputStream == null) {
-            throw new IOException(csvPathProvider + " file not found.");
+            throw new IOException(pathProvider + " file not found.");
         } else {
             return inputStream;
         }
