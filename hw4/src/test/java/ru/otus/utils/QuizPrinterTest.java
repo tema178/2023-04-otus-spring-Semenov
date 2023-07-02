@@ -2,9 +2,8 @@ package ru.otus.utils;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.otus.domain.Answer;
 import ru.otus.domain.Quiz;
 import ru.otus.service.IOServiceStreams;
@@ -18,10 +17,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(properties = {"spring.shell.interactive.enabled=false"})
+@SuppressWarnings("unused")
 class QuizPrinterTest {
 
-    @Mock
+    @MockBean
     private IOServiceStreams streamPrintService;
 
     @DisplayName("Test quiz print format")

@@ -22,6 +22,8 @@
     <commons-csv.version>1.10.0</commons-csv.version>
     <checkstyle-plugin.version>3.1.2</checkstyle-plugin.version>
     <checkstyle.version>10.9.1</checkstyle.version>
+    <spring.shell.version>3.1.2</spring.shell.version>
+    <spring.boot.version>3.1.1</spring.boot.version>
     <checkstyle.config.url>https://raw.githubusercontent.com/OtusTeam/Spring/master/checkstyle.xml
     </checkstyle.config.url>
     <maven.compiler.source>17</maven.compiler.source>
@@ -33,10 +35,17 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
+      <version>${spring.boot.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.shell</groupId>
+      <artifactId>spring-shell-starter</artifactId>
+      <version>${spring.shell.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>

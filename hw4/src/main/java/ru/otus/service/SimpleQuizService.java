@@ -36,9 +36,8 @@ public class SimpleQuizService implements QuizService {
         this.messageLocalizationService = messageLocalizationService;
     }
 
-    public void startQuiz() {
+    public void startQuiz(Person person) {
         try {
-            Person person = getRespondentData();
             QuizResult quizResult = conductQuiz(person);
             quizResultPrinter.printResult(quizResult);
         } catch (DaoException e) {
@@ -46,7 +45,7 @@ public class SimpleQuizService implements QuizService {
         }
     }
 
-    private Person getRespondentData() {
+    public Person loginUser() {
         String name = ioService.readStringWithPrompt(messageLocalizationService.getMessage("quiz.service.1"));
         String surname = ioService.readStringWithPrompt(messageLocalizationService.getMessage("quiz.service.2"));
         return new Person(name, surname);
@@ -72,10 +71,10 @@ public class SimpleQuizService implements QuizService {
     private int readUserAnswer(Quiz quiz) {
         int numberOfSelectedAnswer = 0;
         do {
-            String incorrectInput = messageLocalizationService.getMessage("quiz.service.3");
+            String incorrectInput = messageLocalizationService.getMessage("quiz.service.1");
             try {
                 numberOfSelectedAnswer = ioService.readIntWithPrompt(
-                        messageLocalizationService.getMessage("quiz.service.4"));
+                        messageLocalizationService.getMessage("quiz.service.2"));
             } catch (NumberFormatException e) {
                 ioService.outputString(incorrectInput);
                 continue;

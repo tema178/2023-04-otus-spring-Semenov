@@ -3,9 +3,9 @@ package ru.otus.dao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import ru.otus.config.AppProps;
 import ru.otus.config.QuizFilePathProvider;
 import ru.otus.domain.Answer;
 import ru.otus.domain.Quiz;
@@ -16,18 +16,19 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(properties = {"spring.shell.interactive.enabled=false"})
+@SuppressWarnings("unused")
 class CsvQuizDaoTest {
 
-    @Mock
-    private QuizFilePathProvider pathProvider;
+    @MockBean(AppProps.class)
+    private QuizFilePathProvider quizFilePathProvider;
 
 
     @Test
     @DisplayName("Integration test of reading quiz from csv")
     void csvQuizDaoIntegrationTest() throws DaoException {
-        given(pathProvider.getPath()).willReturn("quizTest.csv");
-        CsvQuizDao csvQuizDao = new CsvQuizDao(new CsvQuizReader(pathProvider));
+        given(quizFilePathProvider.getPath()).willReturn("quizTest.csv");
+        CsvQuizDao csvQuizDao = new CsvQuizDao(new CsvQuizReader(quizFilePathProvider));
         List<Quiz> quizActual = csvQuizDao.getQuestions();
         List<Quiz> quizExpected = List.of(
                 new Quiz("The song 'An Englishman in New York' was about which man?",
