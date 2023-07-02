@@ -1,0 +1,11 @@
+spring:
+  messages:
+    basename: "i18n/appmessages"
+    encoding: "UTF-8"
+
+application:
+  locale: ru_EN
+  countOfAnswersForPassQuiz : 3
+  csvPath:
+    default: quiz.csv
+    ru: quiz_ru.csv
