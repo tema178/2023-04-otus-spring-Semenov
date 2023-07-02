@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.otus.config.PathProvider;
+import ru.otus.config.QuizFilePathProvider;
 import ru.otus.domain.Answer;
 import ru.otus.domain.Quiz;
 import ru.otus.exceptions.DaoException;
@@ -20,7 +20,7 @@ import static org.mockito.BDDMockito.given;
 class CsvQuizDaoTest {
 
     @Mock
-    private PathProvider pathProvider;
+    private QuizFilePathProvider pathProvider;
 
 
     @Test

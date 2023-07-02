@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 
 @ConfigurationProperties(prefix = "application")
-public class AppProps implements LocaleProvider, PathProvider, CountOfAnswersForPassQuizProvider {
+public class AppProps implements LocaleProvider, QuizFilePathProvider, CountOfAnswersForPassQuizProvider {
 
     public static final String DEFAULT_PATH_PROPERTY_KEY = "default";
 

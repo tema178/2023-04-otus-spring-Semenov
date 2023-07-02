@@ -3,7 +3,7 @@ package ru.otus.utils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Component;
-import ru.otus.config.PathProvider;
+import ru.otus.config.QuizFilePathProvider;
 import ru.otus.domain.Answer;
 import ru.otus.domain.Quiz;
 import ru.otus.exceptions.QuizReaderException;
@@ -27,9 +27,9 @@ public class CsvQuizReader implements QuizReader {
 
     private static final String NUMBER_OF_CORRECT_ANSWER_FIELD_NAME = "numberOfCorrectAnswer";
 
-    private final PathProvider pathProvider;
+    private final QuizFilePathProvider pathProvider;
 
-    public CsvQuizReader(PathProvider pathProvider) {
+    public CsvQuizReader(QuizFilePathProvider pathProvider) {
         this.pathProvider = pathProvider;
     }
 

@@ -1,5 +1,5 @@
 package ru.otus.config;
 
-public interface PathProvider {
+public interface QuizFilePathProvider {
     String getPath();
 }
