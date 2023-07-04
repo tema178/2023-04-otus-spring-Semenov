@@ -2,6 +2,7 @@ package ru.otus.utils;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.otus.domain.Answer;
@@ -23,6 +24,9 @@ class QuizPrinterTest {
 
     @MockBean
     private IOServiceStreams streamPrintService;
+
+    @Autowired
+    private QuizPrinter quizPrinter;
 
     @DisplayName("Test quiz print format")
     @Test
@@ -46,7 +50,7 @@ class QuizPrinterTest {
             return null;
         }).when(streamPrintService).outputFormatString(anyString(), any(), any());
 
-        new QuizPrinter(streamPrintService).printQuiz(quizData);
+        quizPrinter.printQuiz(quizData);
 
         String expected = """
                 Anemophobia is the fear of what?
