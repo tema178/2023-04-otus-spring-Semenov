@@ -43,14 +43,14 @@ public class GenreDaoJdbc implements GenreDao {
     public Genre getById(long id) {
         Map<String, Object> params = Collections.singletonMap(ID_FIELD, id);
         return namedParameterJdbcOperations.queryForObject(
-                "select * from genres where id = :id", params, new GenreDaoJdbc.GenreMapper()
+                "select id, name from genres where id = :id", params, new GenreDaoJdbc.GenreMapper()
         );
     }
 
     @Override
     public List<Genre> getAll() {
         return namedParameterJdbcOperations.query(
-                "select * from genres", new GenreDaoJdbc.GenreMapper()
+                "select id, name from genres", new GenreDaoJdbc.GenreMapper()
         );
     }
 

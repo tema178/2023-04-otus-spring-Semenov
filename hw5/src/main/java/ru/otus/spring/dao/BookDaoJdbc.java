@@ -43,22 +43,26 @@ public class BookDaoJdbc implements BookDao {
         params.addValue(GENRE_ID_FIELD, book.getGenre().getId());
         namedParameterJdbcOperations.update(
                 "insert into books (name, author_id, genre_id) values (:name, :author_id, :genre_id)", params, kh);
-        book.setId(Objects.requireNonNull(kh.getKey()).longValue());
-        return book;
+        return getById(Objects.requireNonNull(kh.getKey()).longValue());
     }
 
     @Override
     public Book getById(long id) {
         Map<String, Object> params = Collections.singletonMap(ID_FIELD, id);
         return namedParameterJdbcOperations.queryForObject(
-                "select * from books where id = :id", params, new BookDaoJdbc.BookMapper()
+                "select b.id, b.name, b.author_id, a.name, b.genre_id, g.name from books as b " +
+                        "left join authors as a on b.author_id = a.id " +
+                        "left join genres as g on b.genre_id = g.id " +
+                        "where b.id = :id", params, new BookDaoJdbc.BookMapper()
         );
     }
 
     @Override
     public List<Book> getAll() {
         return namedParameterJdbcOperations.query(
-                "select * from books", new BookDaoJdbc.BookMapper()
+                "select b.id, b.name, b.author_id, a.name, b.genre_id, g.name from books as b " +
+                        "left join authors as a on b.author_id = a.id " +
+                        "left join genres as g on b.genre_id = g.id", new BookDaoJdbc.BookMapper()
         );
     }
 
@@ -85,9 +89,11 @@ public class BookDaoJdbc implements BookDao {
             long id = resultSet.getLong(ID_FIELD);
             String name = resultSet.getString(NAME_FIELD);
             long authorId = resultSet.getLong(AUTHOR_ID_FIELD);
+            String authorName = resultSet.getString("authors.name");
             long genreId = resultSet.getLong(GENRE_ID_FIELD);
-            Author author = new Author(authorId, null);
-            Genre genre = new Genre(genreId, null);
+            String genreName = resultSet.getString("genres.name");
+            Author author = new Author(authorId, authorName);
+            Genre genre = new Genre(genreId, genreName);
             return new Book(id, name, author, genre);
         }
     }

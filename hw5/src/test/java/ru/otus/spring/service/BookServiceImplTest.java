@@ -3,13 +3,11 @@ package ru.otus.spring.service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
-import ru.otus.spring.dao.AuthorDao;
 import ru.otus.spring.dao.BookDao;
-import ru.otus.spring.dao.GenreDao;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
@@ -22,7 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @DisplayName("Сервис для работы с книгами должен")
-@JdbcTest
+@SpringBootTest(properties = {"spring.shell.interactive.enabled=false"})
 @Import({BookServiceImpl.class})
 class BookServiceImplTest {
 
@@ -63,9 +61,6 @@ class BookServiceImplTest {
     private static final Book FIRST_BOOK_FULL = new Book(FIRST_BOOK_ID, FIRST_BOOK_NAME,
             AUTHOR_IVAN_FULL, ACTION_GENRE_FULL);
 
-    private static final Book FIRST_BOOK = new Book(FIRST_BOOK_ID, FIRST_BOOK_NAME,
-            AUTHOR_IVAN, ACTION_GENRE);
-
 
     private static final int SECOND_BOOK_ID = 2;
 
@@ -73,9 +68,6 @@ class BookServiceImplTest {
 
     private static final Book SECOND_BOOK_FULL = new Book(SECOND_BOOK_ID, SECOND_BOOK_NAME,
             AUTHOR_NIKOLAY_FULL, ACTION_GENRE_FULL);
-
-    private static final Book SECOND_BOOK = new Book(SECOND_BOOK_ID, SECOND_BOOK_NAME,
-            AUTHOR_NIKOLAY, ACTION_GENRE);
 
     private static final int EXPECTED_LIBRARY_SIZE = 2;
 
@@ -85,17 +77,10 @@ class BookServiceImplTest {
     @MockBean
     private BookDao bookDao;
 
-    @MockBean
-    private AuthorDao authorDao;
-
-    @MockBean
-    private GenreDao genreDao;
 
     @DisplayName("Создать новую книгу")
     @Test
     void shouldInsertNewBook() {
-        given(authorDao.getById(1)).willReturn(AUTHOR_IVAN_FULL);
-        given(genreDao.getById(1)).willReturn(ACTION_GENRE_FULL);
         given(bookDao.create(BOOK)).willReturn(BOOK_FULL);
         Book result = bookService.create(BOOK);
         assertThat(result.getName()).isEqualTo(BOOK.getName());
@@ -106,8 +91,6 @@ class BookServiceImplTest {
     @DisplayName("Получить книгу по id")
     @Test
     void shouldGetBookById() {
-        given(authorDao.getById(IVAN_ID)).willReturn(AUTHOR_IVAN_FULL);
-        given(genreDao.getById(ACTION_GENRE_ID)).willReturn(ACTION_GENRE_FULL);
         given(bookDao.getById(FIRST_BOOK_ID)).willReturn(FIRST_BOOK_FULL);
         Book book = bookService.getById(FIRST_BOOK_ID);
         assertThat(book.getName()).isEqualTo(FIRST_BOOK_FULL.getName());
@@ -118,10 +101,7 @@ class BookServiceImplTest {
     @DisplayName("Получить все книги")
     @Test
     void shouldGetBooks() {
-        given(authorDao.getById(IVAN_ID)).willReturn(AUTHOR_IVAN_FULL);
-        given(authorDao.getById(NIKOLAY_ID)).willReturn(AUTHOR_NIKOLAY_FULL);
-        given(genreDao.getById(ACTION_GENRE_ID)).willReturn(ACTION_GENRE_FULL);
-        given(bookDao.getAll()).willReturn(List.of(FIRST_BOOK, SECOND_BOOK));
+        given(bookDao.getAll()).willReturn(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
         List<Book> book = bookService.getAll();
         assertThat(book).hasSize(EXPECTED_LIBRARY_SIZE).isEqualTo(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
     }

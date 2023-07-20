@@ -50,7 +50,7 @@ public class AuthorDaoJdbc implements AuthorDao {
     @Override
     public List<Author> getAll() {
         return namedParameterJdbcOperations.query(
-                "select * from authors", new AuthorDaoJdbc.AuthorMapper()
+                "select id, name from authors", new AuthorDaoJdbc.AuthorMapper()
         );
     }
 
