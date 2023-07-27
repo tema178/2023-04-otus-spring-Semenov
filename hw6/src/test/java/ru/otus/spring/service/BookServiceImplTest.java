@@ -7,10 +7,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
+import ru.otus.spring.dao.AuthorDao;
 import ru.otus.spring.dao.BookDao;
+import ru.otus.spring.dao.GenreDao;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
+import ru.otus.spring.exceptions.BookServiceException;
 
 import java.util.List;
 
@@ -46,13 +49,9 @@ class BookServiceImplTest {
 
     private static final int NIKOLAY_ID = 2;
 
-    private static final Author AUTHOR_NIKOLAY = new Author(NIKOLAY_ID, null);
-
     private static final String TEST_BOOK_NAME_NEW = "Test book new";
 
     private static final Author AUTHOR_NIKOLAY_FULL = new Author(NIKOLAY_ID, "Nikolay");
-
-    private static final Genre CRIME_GENRE = new Genre(4, null);
 
     private static final int FIRST_BOOK_ID = 1;
 
@@ -72,17 +71,29 @@ class BookServiceImplTest {
     private static final int EXPECTED_LIBRARY_SIZE = 2;
 
     @Autowired
+    @SuppressWarnings("unused")
     private BookService bookService;
 
     @MockBean
+    @SuppressWarnings("unused")
     private BookDao bookDao;
+
+    @MockBean
+    @SuppressWarnings("unused")
+    private AuthorDao authorDao;
+
+    @MockBean
+    @SuppressWarnings("unused")
+    private GenreDao genreDao;
 
 
     @DisplayName("Создать новую книгу")
     @Test
-    void shouldInsertNewBook() {
-        given(bookDao.create(BOOK)).willReturn(BOOK_FULL);
-        Book result = bookService.create(BOOK);
+    void shouldInsertNewBook() throws BookServiceException {
+        given(bookDao.create(any())).willReturn(BOOK_FULL);
+        given(authorDao.getById(IVAN_ID)).willReturn(AUTHOR_IVAN_FULL);
+        given(genreDao.getById(ACTION_GENRE_ID)).willReturn(ACTION_GENRE_FULL);
+        Book result = bookService.create(TEST_BOOK_NAME, IVAN_ID, ACTION_GENRE_ID);
         assertThat(result.getName()).isEqualTo(BOOK.getName());
         assertThat(result.getAuthor()).isEqualTo(BOOK_FULL.getAuthor());
         assertThat(result.getGenre()).isEqualTo(BOOK_FULL.getGenre());
@@ -108,9 +119,11 @@ class BookServiceImplTest {
 
     @DisplayName("Обновить книгу по id")
     @Test
-    void shouldUpdateBookById() {
+    void shouldUpdateBookById() throws BookServiceException {
         given(bookDao.update(any())).willReturn(1);
-        boolean updated = bookService.update(new Book(FIRST_BOOK_ID, TEST_BOOK_NAME_NEW, AUTHOR_NIKOLAY, CRIME_GENRE));
+        given(authorDao.getById(NIKOLAY_ID)).willReturn(AUTHOR_IVAN_FULL);
+        given(genreDao.getById(ACTION_GENRE_ID)).willReturn(ACTION_GENRE_FULL);
+        boolean updated = bookService.update(FIRST_BOOK_ID, TEST_BOOK_NAME_NEW, NIKOLAY_ID, ACTION_GENRE_ID);
         assertTrue(updated);
     }
 

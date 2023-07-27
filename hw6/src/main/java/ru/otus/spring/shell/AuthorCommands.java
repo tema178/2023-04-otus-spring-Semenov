@@ -3,9 +3,8 @@ package ru.otus.spring.shell;
 import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import ru.otus.spring.dao.AuthorDao;
 import ru.otus.spring.domain.Author;
-import ru.otus.spring.service.InputService;
+import ru.otus.spring.service.AuthorService;
 import ru.otus.spring.utils.AuthorPrinter;
 
 @ShellComponent
@@ -14,9 +13,7 @@ import ru.otus.spring.utils.AuthorPrinter;
 public class AuthorCommands {
 
 
-    private final AuthorDao authorDao;
-
-    private final InputService inputService;
+    private final AuthorService authorDao;
 
     private final AuthorPrinter authorPrinter;
 
@@ -27,8 +24,7 @@ public class AuthorCommands {
     }
 
     @ShellMethod(value = "Update author by id", key = {"updateAuthor"})
-    public String update(long id) {
-        String name = inputService.readStringWithPrompt("Enter author name:");
+    public String update(long id, String name) {
         Author author = new Author(id, name);
         return authorDao.update(author) > 0 ? "Author has been updated" : "Author hasn't been updated";
     }

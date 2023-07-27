@@ -12,8 +12,19 @@ public class BookPrinterImpl implements BookPrinter {
 
     private final OutputService outputService;
 
-    public BookPrinterImpl(OutputService outputService) {
+    private final CommentPrinter commentPrinter;
+
+    public BookPrinterImpl(OutputService outputService, CommentPrinter commentPrinter) {
         this.outputService = outputService;
+        this.commentPrinter = commentPrinter;
+    }
+
+    @Override
+    public void printWithComments(Book book) {
+        String format = String.format("id: %s, name: %s, author: %s, genre: %s",
+                book.getId(), book.getName(), book.getAuthor().getName(), book.getGenre().getName());
+        outputService.outputString(format);
+        commentPrinter.print(book.getComments());
     }
 
     @Override

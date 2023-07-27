@@ -3,9 +3,8 @@ package ru.otus.spring.dao;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.EmptyResultDataAccessException;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
@@ -13,12 +12,12 @@ import ru.otus.spring.domain.Genre;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DisplayName("Dao для работы с книгами должно")
-@JdbcTest
-@Import({BookDaoJdbc.class})
-class BookDaoJdbcTest {
+@DataJpaTest
+@Import({BookDaoJpa.class})
+class BookDaoJpaTest {
 
     private static final int EXPECTED_UPDATE_COUNT = 1;
 
@@ -45,12 +44,13 @@ class BookDaoJdbcTest {
     private static final int EXPECTED_LIBRARY_SIZE = 2;
 
     @Autowired
+    @SuppressWarnings("unused")
     private BookDao bookDao;
 
     @DisplayName("Создать новую книгу")
     @Test
     void shouldInsertNewBook() {
-        bookDao.create(new Book(TEST_BOOK_ID, TEST_BOOK_NAME, AUTHOR_IVAN, ACTION_GENRE));
+        bookDao.create(new Book(TEST_BOOK_NAME, AUTHOR_IVAN, ACTION_GENRE));
         Book book = bookDao.getById(TEST_BOOK_ID);
         assertThat(book.getName()).isEqualTo(TEST_BOOK_NAME);
     }
@@ -83,7 +83,7 @@ class BookDaoJdbcTest {
     void shouldDeleteBookById() {
         int updated = bookDao.deleteById(FIRST_BOOK_ID);
         assertThat(updated).isEqualTo(EXPECTED_DELETE_COUNT);
-        assertThrows(EmptyResultDataAccessException.class, () -> bookDao.getById(FIRST_BOOK_ID));
+        assertNull(bookDao.getById(FIRST_BOOK_ID));
     }
 
 }

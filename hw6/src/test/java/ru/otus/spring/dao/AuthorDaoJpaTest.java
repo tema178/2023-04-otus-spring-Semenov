@@ -3,20 +3,19 @@ package ru.otus.spring.dao;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.EmptyResultDataAccessException;
 import ru.otus.spring.domain.Author;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DisplayName("Dao для работы с авторами должно")
-@JdbcTest
-@Import(AuthorDaoJdbc.class)
-class AuthorDaoJdbcTest {
+@DataJpaTest
+@Import(AuthorDaoJpa.class)
+class AuthorDaoJpaTest {
 
     private static final int EXPECTED_UPDATE_COUNT = 1;
 
@@ -37,12 +36,13 @@ class AuthorDaoJdbcTest {
     private static final int ANNA_ID = 3;
 
     @Autowired
-    private AuthorDaoJdbc authorDao;
+    @SuppressWarnings("unused")
+    private AuthorDaoJpa authorDao;
 
     @DisplayName("Создать нового автора")
     @Test
     void shouldInsertNewAuthor() {
-        authorDao.create(new Author(PETR_ID, PETR_NAME));
+        authorDao.create(new Author(0, PETR_NAME));
         Author author = authorDao.getById(PETR_ID);
         assertThat(author.getId()).isEqualTo(PETR_ID);
         assertThat(author.getName()).isEqualTo(PETR_NAME);
@@ -78,8 +78,7 @@ class AuthorDaoJdbcTest {
     void shouldDeleteAuthorById() {
         int updated = authorDao.deleteById(ANNA_ID);
         assertThat(updated).isEqualTo(EXPECTED_DELETE_COUNT);
-        assertThrows(EmptyResultDataAccessException.class, () -> authorDao.getById(ANNA_ID));
-
+        assertNull(authorDao.getById(ANNA_ID));
     }
 
 }

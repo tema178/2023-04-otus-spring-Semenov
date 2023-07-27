@@ -24,3 +24,9 @@ insert into books (`name`, author_id, genre_id)
 values ('Book of Ivan', 1, 1);
 insert into books (`name`, author_id, genre_id)
 values ('Book of Nikolay', 2, 1);
+
+insert into comments (book_id, `body`)
+values (2, 'Comment for book of Nikolay 1');
+
+insert into comments (book_id, `body`)
+values (2, 'Comment for book of Nikolay 2');

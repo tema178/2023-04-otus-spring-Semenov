@@ -1,5 +1,6 @@
 package ru.otus.spring.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,17 +14,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "authors")
-public class Author {
+@Table(name = "comments")
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String name;
+    @Column(name = "book_id")
+    private long bookId;
 
-    public Author(String name) {
+    private String body;
+
+    public Comment(long bookId, String body) {
         this.id = 0;
-        this.name = name;
+        this.bookId = bookId;
+        this.body = body;
     }
 }

@@ -3,9 +3,8 @@ package ru.otus.spring.shell;
 import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import ru.otus.spring.dao.GenreDao;
 import ru.otus.spring.domain.Genre;
-import ru.otus.spring.service.InputService;
+import ru.otus.spring.service.GenreService;
 import ru.otus.spring.utils.GenrePrinter;
 
 @ShellComponent
@@ -14,9 +13,7 @@ import ru.otus.spring.utils.GenrePrinter;
 public class GenreCommands {
 
 
-    private final GenreDao genreDao;
-
-    private final InputService inputService;
+    private final GenreService genreDao;
     
     private final GenrePrinter genrePrinter;
 
@@ -27,8 +24,7 @@ public class GenreCommands {
     }
 
     @ShellMethod(value = "Update genre by id", key = {"updateGenre"})
-    public String update(long id) {
-        String name = inputService.readStringWithPrompt("Enter genre name:");
+    public String update(long id, String name) {
         Genre genre = new Genre(id, name);
         return genreDao.update(genre) > 0 ? "Genre has been updated" : "Genre hasn't been updated";
     }
