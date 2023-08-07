@@ -13,5 +13,5 @@ public interface GenreService {
 
     int update(Genre genre);
 
-    int deleteById(long id);
+    Genre deleteById(long id);
 }

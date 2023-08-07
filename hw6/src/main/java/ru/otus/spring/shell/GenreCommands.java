@@ -43,7 +43,7 @@ public class GenreCommands {
 
     @ShellMethod(value = "Delete genre by id", key = {"deleteGenre"})
     public String delete(long id) {
-        return genreDao.deleteById(id) > 0 ? "Genre has been deleted" : "Genre hasn't been deleted";
+        return genreDao.deleteById(id) != null ? "Genre has been deleted" : "Genre hasn't been deleted";
     }
 
 

@@ -2,9 +2,10 @@ package ru.otus.spring.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
+
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
+import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Comment;
 
 import java.util.List;
@@ -27,8 +28,9 @@ public class CommentDaoJpa implements CommentDao {
 
     @Override
     public List<Comment> getAllCommentsForBook(long bookId) {
-        TypedQuery<Comment> query = em.createQuery("select s from Comment s where bookId = :bookId", Comment.class);
-        query.setParameter("bookId", bookId);
+        TypedQuery<Comment> query = em.createQuery("select s from Comment s where book = :book", Comment.class);
+        Book book = em.find(Book.class, bookId);
+        query.setParameter("book", book);
         return query.getResultList();
     }
 
@@ -41,9 +43,11 @@ public class CommentDaoJpa implements CommentDao {
     }
 
     @Override
-    public int deleteById(long id) {
-        Query query = em.createQuery("delete from Comment where id = :id");
-        query.setParameter("id", id);
-        return query.executeUpdate();
+    public Comment deleteById(long id) {
+        Comment comment = em.find(Comment.class, id);
+        if (comment != null) {
+            em.remove(comment);
+        }
+        return comment;
     }
 }

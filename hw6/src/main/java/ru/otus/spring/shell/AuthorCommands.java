@@ -42,7 +42,7 @@ public class AuthorCommands {
 
     @ShellMethod(value = "Delete author by id", key = {"deleteAuthor"})
     public String delete(long id) {
-        return authorDao.deleteById(id) > 0 ? "Author has been deleted" : "Author hasn't been deleted";
+        return authorDao.deleteById(id) != null ? "Author has been deleted" : "Author hasn't been deleted";
     }
 
 

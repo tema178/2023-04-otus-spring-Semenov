@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
@@ -20,8 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class BookDaoJpaTest {
 
     private static final int EXPECTED_UPDATE_COUNT = 1;
-
-    private static final int EXPECTED_DELETE_COUNT = 1;
 
     private static final int TEST_BOOK_ID = 3;
 
@@ -47,11 +46,15 @@ class BookDaoJpaTest {
     @SuppressWarnings("unused")
     private BookDao bookDao;
 
+    @Autowired
+    @SuppressWarnings("unused")
+    private TestEntityManager em;
+
     @DisplayName("Создать новую книгу")
     @Test
     void shouldInsertNewBook() {
         bookDao.create(new Book(TEST_BOOK_NAME, AUTHOR_IVAN, ACTION_GENRE));
-        Book book = bookDao.getById(TEST_BOOK_ID);
+        Book book = em.find(Book.class, TEST_BOOK_ID);
         assertThat(book.getName()).isEqualTo(TEST_BOOK_NAME);
     }
 
@@ -74,16 +77,16 @@ class BookDaoJpaTest {
     void shouldUpdateBookById() {
         int updated = bookDao.update(new Book(FIRST_BOOK_ID, TEST_BOOK_NAME_NEW, AUTHOR_NIKOLAY, CRIME_GENRE));
         assertThat(updated).isEqualTo(EXPECTED_UPDATE_COUNT);
-        Book book = bookDao.getById(FIRST_BOOK_ID);
+        Book book = em.find(Book.class, FIRST_BOOK_ID);
         assertThat(book.getName()).isEqualTo(TEST_BOOK_NAME_NEW);
     }
 
     @DisplayName("Удалить книгу по id")
     @Test
     void shouldDeleteBookById() {
-        int updated = bookDao.deleteById(FIRST_BOOK_ID);
-        assertThat(updated).isEqualTo(EXPECTED_DELETE_COUNT);
-        assertNull(bookDao.getById(FIRST_BOOK_ID));
+        Book book = bookDao.deleteById(FIRST_BOOK_ID);
+        assertThat(book.getId()).isEqualTo(FIRST_BOOK_ID);
+        assertNull(em.find(Book.class, FIRST_BOOK_ID));
     }
 
 }

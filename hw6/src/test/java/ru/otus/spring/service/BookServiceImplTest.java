@@ -18,6 +18,7 @@ import ru.otus.spring.exceptions.BookServiceException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -130,8 +131,9 @@ class BookServiceImplTest {
     @DisplayName("Удалить книгу по id")
     @Test
     void shouldDeleteBookById() {
-        given(bookDao.deleteById(FIRST_BOOK_ID)).willReturn(1);
-        boolean updated = bookService.deleteById(FIRST_BOOK_ID);
-        assertTrue(updated);
+        given(bookDao.deleteById(FIRST_BOOK_ID)).willReturn(FIRST_BOOK_FULL);
+        Book book = bookService.deleteById(FIRST_BOOK_ID);
+        assertThat(book.getId()).isEqualTo(FIRST_BOOK_ID);
+        assertNull(bookDao.getById(FIRST_BOOK_ID));
     }
 }

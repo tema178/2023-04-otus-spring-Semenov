@@ -64,8 +64,8 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public boolean deleteById(long id) {
-        return bookDao.deleteById(id) > 0;
+    public Book deleteById(long id) {
+        return bookDao.deleteById(id);
     }
 
     private void validateAuthorAndGenre(Author author, Genre genre) throws BookServiceException {

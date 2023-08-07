@@ -35,7 +35,7 @@ public class CommentCommands {
 
     @ShellMethod(value = "Delete comment by id", key = {"deleteComment"})
     public String delete(long id) {
-        return commentDao.deleteById(id) > 0 ? "Comment has been deleted" : "Comment hasn't been deleted";
+        return commentDao.deleteById(id) != null ? "Comment has been deleted" : "Comment hasn't been deleted";
     }
 
 

@@ -7,13 +7,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Collections;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
 @Entity
 @Table(name = "books")
 @NamedEntityGraph(name = "books-authors-genres-entity-graph",
@@ -35,11 +35,11 @@ public class Book {
     @Column(nullable = false)
     private String name;
 
-    @OneToOne(targetEntity = Author.class)
+    @ManyToOne(targetEntity = Author.class)
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;
 
-    @OneToOne(targetEntity = Genre.class)
+    @ManyToOne(targetEntity = Genre.class)
     @JoinColumn(name = "genre_id", nullable = false)
     private Genre genre;
 

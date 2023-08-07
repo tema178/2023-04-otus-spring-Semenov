@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import ru.otus.spring.domain.Genre;
 
@@ -21,8 +22,6 @@ class GenreDaoJpaTest {
 
     private static final int EXPECTED_GENRES_TABLE_SIZE = 6;
 
-    private static final int EXPECTED_DELETE_COUNT = 1;
-
     private static final String HISTORICAL_GENRE = "Historical";
 
     private static final String ACTION_GENRE = "Action";
@@ -39,11 +38,15 @@ class GenreDaoJpaTest {
     @SuppressWarnings("unused")
     private GenreDao genreDao;
 
+    @Autowired
+    @SuppressWarnings("unused")
+    private TestEntityManager em;
+
     @DisplayName("Создать новый жанр")
     @Test
     void shouldInsertNewGenre() {
         genreDao.create(new Genre(0, HISTORICAL_GENRE));
-        Genre genre = genreDao.getById(HISTORICAL_ID);
+        Genre genre = em.find(Genre.class, HISTORICAL_ID);
         assertThat(genre.getName()).isEqualTo(HISTORICAL_GENRE);
     }
 
@@ -66,16 +69,16 @@ class GenreDaoJpaTest {
     void shouldUpdateGenreById() {
         int updated = genreDao.update(new Genre(ACTION_ID, ACTION_GENRE_NEW));
         assertThat(updated).isEqualTo(EXPECTED_UPDATE_COUNT);
-        Genre genre = genreDao.getById(ACTION_ID);
+        Genre genre = em.find(Genre.class, ACTION_ID);
         assertThat(genre.getName()).isEqualTo(ACTION_GENRE_NEW);
     }
 
     @DisplayName("Удалить жанр по id")
     @Test
     void shouldDeleteGenreById() {
-        int updated = genreDao.deleteById(HORROR_ID);
-        assertThat(updated).isEqualTo(EXPECTED_DELETE_COUNT);
-        assertNull(genreDao.getById(HORROR_ID));
+        Genre genre = genreDao.deleteById(HORROR_ID);
+        assertThat(genre.getId()).isEqualTo(HORROR_ID);
+        assertNull(em.find(Genre.class, HORROR_ID));
 
     }
 

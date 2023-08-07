@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import ru.otus.spring.domain.Author;
 
@@ -21,8 +22,6 @@ class AuthorDaoJpaTest {
 
     private static final int EXPECTED_AUTHORS_TABLE_SIZE = 3;
 
-    private static final int EXPECTED_DELETE_COUNT = 1;
-
     private static final String PETR_NAME = "Petr";
 
     private static final int PETR_ID = 4;
@@ -39,11 +38,15 @@ class AuthorDaoJpaTest {
     @SuppressWarnings("unused")
     private AuthorDaoJpa authorDao;
 
+    @Autowired
+    @SuppressWarnings("unused")
+    private TestEntityManager em;
+
     @DisplayName("Создать нового автора")
     @Test
     void shouldInsertNewAuthor() {
         authorDao.create(new Author(0, PETR_NAME));
-        Author author = authorDao.getById(PETR_ID);
+        Author author = em.find(Author.class, PETR_ID);
         assertThat(author.getId()).isEqualTo(PETR_ID);
         assertThat(author.getName()).isEqualTo(PETR_NAME);
     }
@@ -68,7 +71,7 @@ class AuthorDaoJpaTest {
     void shouldUpdateAuthorById() {
         int updated = authorDao.update(new Author(IVAN_ID, IVAN_NAME_NEW));
         assertThat(updated).isEqualTo(EXPECTED_UPDATE_COUNT);
-        Author author = authorDao.getById(IVAN_ID);
+        Author author = em.find(Author.class, IVAN_ID);
         assertThat(author.getId()).isEqualTo(IVAN_ID);
         assertThat(author.getName()).isEqualTo(IVAN_NAME_NEW);
     }
@@ -76,9 +79,9 @@ class AuthorDaoJpaTest {
     @DisplayName("Удалить автора по id")
     @Test
     void shouldDeleteAuthorById() {
-        int updated = authorDao.deleteById(ANNA_ID);
-        assertThat(updated).isEqualTo(EXPECTED_DELETE_COUNT);
-        assertNull(authorDao.getById(ANNA_ID));
+        Author author = authorDao.deleteById(ANNA_ID);
+        assertThat(author.getId()).isEqualTo(ANNA_ID);
+        assertNull(em.find(Author.class, ANNA_ID));
     }
 
 }

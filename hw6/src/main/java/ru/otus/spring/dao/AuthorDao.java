@@ -13,5 +13,5 @@ public interface AuthorDao {
 
     int update(Author author);
 
-    int deleteById(long id);
+    Author deleteById(long id);
 }

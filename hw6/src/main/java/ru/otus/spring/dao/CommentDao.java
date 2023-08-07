@@ -11,5 +11,5 @@ public interface CommentDao {
 
     int update(long id, String comment);
 
-    int deleteById(long id);
+    Comment deleteById(long id);
 }

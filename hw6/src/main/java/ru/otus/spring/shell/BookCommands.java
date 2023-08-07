@@ -67,6 +67,6 @@ public class BookCommands {
 
     @ShellMethod(value = "Delete book", key = {"deleteBook"})
     public String deleteBook(long id) {
-        return quizService.deleteById(id) ? "Book has been deleted" : "Book hasn't been deleted";
+        return quizService.deleteById(id) != null ? "Book has been deleted" : "Book hasn't been deleted";
     }
 }

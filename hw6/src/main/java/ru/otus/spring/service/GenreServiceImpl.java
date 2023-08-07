@@ -41,7 +41,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Transactional
     @Override
-    public int deleteById(long id) {
+    public Genre deleteById(long id) {
         return dao.deleteById(id);
     }
 
