@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @Import(GenreDaoJpa.class)
 class GenreDaoJpaTest {
 
-    private static final int EXPECTED_UPDATE_COUNT = 1;
-
     private static final int EXPECTED_GENRES_TABLE_SIZE = 6;
 
     private static final String HISTORICAL_GENRE = "Historical";
@@ -67,8 +65,7 @@ class GenreDaoJpaTest {
     @DisplayName("Обновить жанр по id")
     @Test
     void shouldUpdateGenreById() {
-        int updated = genreDao.update(new Genre(ACTION_ID, ACTION_GENRE_NEW));
-        assertThat(updated).isEqualTo(EXPECTED_UPDATE_COUNT);
+        genreDao.update(new Genre(ACTION_ID, ACTION_GENRE_NEW));
         Genre genre = em.find(Genre.class, ACTION_ID);
         assertThat(genre.getName()).isEqualTo(ACTION_GENRE_NEW);
     }

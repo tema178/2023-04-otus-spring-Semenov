@@ -20,8 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @Import({BookDaoJpa.class})
 class BookDaoJpaTest {
 
-    private static final int EXPECTED_UPDATE_COUNT = 1;
-
     private static final int TEST_BOOK_ID = 3;
 
     private static final String TEST_BOOK_NAME = "Test book";
@@ -75,8 +73,7 @@ class BookDaoJpaTest {
     @DisplayName("Обновить книгу по id")
     @Test
     void shouldUpdateBookById() {
-        int updated = bookDao.update(new Book(FIRST_BOOK_ID, TEST_BOOK_NAME_NEW, AUTHOR_NIKOLAY, CRIME_GENRE));
-        assertThat(updated).isEqualTo(EXPECTED_UPDATE_COUNT);
+        bookDao.update(new Book(FIRST_BOOK_ID, TEST_BOOK_NAME_NEW, AUTHOR_NIKOLAY, CRIME_GENRE));
         Book book = em.find(Book.class, FIRST_BOOK_ID);
         assertThat(book.getName()).isEqualTo(TEST_BOOK_NAME_NEW);
     }

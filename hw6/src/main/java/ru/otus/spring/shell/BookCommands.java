@@ -52,8 +52,8 @@ public class BookCommands {
         long authorId = inputService.readLongWithPrompt("Enter author id:");
         long genreId = inputService.readLongWithPrompt("Enter genre id:");
         try {
-            boolean update = quizService.update(id, bookName, authorId, genreId);
-            return update ? "Book has been updated" : "Book hasn't been updated";
+            quizService.update(id, bookName, authorId, genreId);
+            return "Book has been updated";
         } catch (BookServiceException e) {
             return e.getMessage();
         }

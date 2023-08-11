@@ -25,7 +25,8 @@ public class CommentCommands {
 
     @ShellMethod(value = "Update comment by id", key = {"changeComment"})
     public String update(long id, String comment) {
-        return commentDao.update(id, comment) > 0 ? "Comment has been updated" : "Comment hasn't been updated";
+        commentDao.update(id, comment);
+        return "Comment has been updated";
     }
 
     @ShellMethod(value = "Show all comments for book by id", key = {"allComments"})

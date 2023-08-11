@@ -36,9 +36,8 @@ public class AuthorDaoJpa implements AuthorDao {
     }
 
     @Override
-    public int update(Author author) {
+    public void update(Author author) {
         em.merge(author);
-        return 1;
     }
 
     @Override

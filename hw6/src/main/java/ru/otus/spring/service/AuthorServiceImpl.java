@@ -35,8 +35,8 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Transactional
     @Override
-    public int update(Author author) {
-        return dao.update(author);
+    public void update(Author author) {
+        dao.update(author);
     }
 
     @Transactional

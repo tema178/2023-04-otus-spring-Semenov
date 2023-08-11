@@ -19,7 +19,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -49,8 +48,6 @@ class BookServiceImplTest {
     private static final Book BOOK_FULL = new Book(TEST_BOOK_ID, TEST_BOOK_NAME, AUTHOR_IVAN_FULL, ACTION_GENRE_FULL);
 
     private static final int NIKOLAY_ID = 2;
-
-    private static final String TEST_BOOK_NAME_NEW = "Test book new";
 
     private static final Author AUTHOR_NIKOLAY_FULL = new Author(NIKOLAY_ID, "Nikolay");
 
@@ -116,16 +113,6 @@ class BookServiceImplTest {
         given(bookDao.getAll()).willReturn(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
         List<Book> book = bookService.getAll();
         assertThat(book).hasSize(EXPECTED_LIBRARY_SIZE).isEqualTo(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
-    }
-
-    @DisplayName("Обновить книгу по id")
-    @Test
-    void shouldUpdateBookById() throws BookServiceException {
-        given(bookDao.update(any())).willReturn(1);
-        given(authorDao.getById(NIKOLAY_ID)).willReturn(AUTHOR_IVAN_FULL);
-        given(genreDao.getById(ACTION_GENRE_ID)).willReturn(ACTION_GENRE_FULL);
-        boolean updated = bookService.update(FIRST_BOOK_ID, TEST_BOOK_NAME_NEW, NIKOLAY_ID, ACTION_GENRE_ID);
-        assertTrue(updated);
     }
 
     @DisplayName("Удалить книгу по id")

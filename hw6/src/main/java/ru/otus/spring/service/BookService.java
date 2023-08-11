@@ -8,7 +8,7 @@ import java.util.List;
 public interface BookService {
     Book create(String bookName, long authorId, long genreId) throws BookServiceException;
 
-    boolean update(long id, String bookName, long authorId, long genreId) throws BookServiceException;
+    void update(long id, String bookName, long authorId, long genreId) throws BookServiceException;
 
     List<Book> getAll();
 

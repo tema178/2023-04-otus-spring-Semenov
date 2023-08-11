@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @Import(AuthorDaoJpa.class)
 class AuthorDaoJpaTest {
 
-    private static final int EXPECTED_UPDATE_COUNT = 1;
-
     private static final int EXPECTED_AUTHORS_TABLE_SIZE = 3;
 
     private static final String PETR_NAME = "Petr";
@@ -69,8 +67,7 @@ class AuthorDaoJpaTest {
     @DisplayName("Обновить автора по id")
     @Test
     void shouldUpdateAuthorById() {
-        int updated = authorDao.update(new Author(IVAN_ID, IVAN_NAME_NEW));
-        assertThat(updated).isEqualTo(EXPECTED_UPDATE_COUNT);
+        authorDao.update(new Author(IVAN_ID, IVAN_NAME_NEW));
         Author author = em.find(Author.class, IVAN_ID);
         assertThat(author.getId()).isEqualTo(IVAN_ID);
         assertThat(author.getName()).isEqualTo(IVAN_NAME_NEW);

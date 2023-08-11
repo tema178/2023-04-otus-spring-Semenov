@@ -26,7 +26,8 @@ public class AuthorCommands {
     @ShellMethod(value = "Update author by id", key = {"updateAuthor"})
     public String update(long id, String name) {
         Author author = new Author(id, name);
-        return authorDao.update(author) > 0 ? "Author has been updated" : "Author hasn't been updated";
+        authorDao.update(author);
+        return "Author has been updated";
     }
 
     @ShellMethod(value = "Get author by id", key = {"getAuthor"})

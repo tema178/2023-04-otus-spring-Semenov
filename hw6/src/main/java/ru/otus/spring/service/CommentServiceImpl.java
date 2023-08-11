@@ -30,8 +30,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public int update(long id, String comment) {
-        return dao.update(id, comment);
+    public void update(long id, String comment) {
+        dao.update(id, comment);
     }
 
     @Transactional

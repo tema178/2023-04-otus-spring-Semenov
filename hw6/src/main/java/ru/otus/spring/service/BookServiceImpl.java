@@ -40,12 +40,12 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public boolean update(long id, String bookName, long authorId, long genreId) throws BookServiceException {
+    public void update(long id, String bookName, long authorId, long genreId) throws BookServiceException {
         Author author = authorDao.getById(authorId);
         Genre genre = genreDao.getById(genreId);
         validateAuthorAndGenre(author, genre);
         Book book = new Book(id, bookName, author, genre);
-        return bookDao.update(book) > 0;
+        bookDao.update(book);
     }
 
     @Override

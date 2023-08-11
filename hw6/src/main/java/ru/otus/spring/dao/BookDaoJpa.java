@@ -42,9 +42,8 @@ public class BookDaoJpa implements BookDao {
     }
 
     @Override
-    public int update(Book book) {
+    public void update(Book book) {
         em.merge(book);
-        return 1;
     }
 
     @Override

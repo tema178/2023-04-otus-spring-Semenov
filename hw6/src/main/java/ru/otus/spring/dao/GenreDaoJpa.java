@@ -36,9 +36,8 @@ public class GenreDaoJpa implements GenreDao {
     }
 
     @Override
-    public int update(Genre genre) {
+    public void update(Genre genre) {
         em.merge(genre);
-        return 1;
     }
 
     @Override

@@ -35,11 +35,10 @@ public class CommentDaoJpa implements CommentDao {
     }
 
     @Override
-    public int update(long id, String comment) {
+    public void update(long id, String comment) {
         Comment original = em.find(Comment.class, id);
         original.setBody(comment);
         em.merge(original);
-        return 1;
     }
 
     @Override

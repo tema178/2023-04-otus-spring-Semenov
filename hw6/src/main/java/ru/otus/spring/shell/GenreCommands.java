@@ -26,7 +26,8 @@ public class GenreCommands {
     @ShellMethod(value = "Update genre by id", key = {"updateGenre"})
     public String update(long id, String name) {
         Genre genre = new Genre(id, name);
-        return genreDao.update(genre) > 0 ? "Genre has been updated" : "Genre hasn't been updated";
+        genreDao.update(genre);
+        return "Genre has been updated";
     }
 
     @ShellMethod(value = "Get genre by id", key = {"getGenre"})

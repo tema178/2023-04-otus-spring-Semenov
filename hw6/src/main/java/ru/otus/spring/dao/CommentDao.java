@@ -9,7 +9,7 @@ public interface CommentDao {
 
     List<Comment> getAllCommentsForBook(long bookId);
 
-    int update(long id, String comment);
+    void update(long id, String comment);
 
     Comment deleteById(long id);
 }
