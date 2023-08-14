@@ -1,0 +1,50 @@
+package ru.otus.spring.shell;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import ru.otus.spring.domain.Author;
+import ru.otus.spring.service.AuthorService;
+import ru.otus.spring.utils.AuthorPrinter;
+
+@ShellComponent
+@RequiredArgsConstructor
+@SuppressWarnings("unused")
+public class AuthorCommands {
+
+
+    private final AuthorService authorDao;
+
+    private final AuthorPrinter authorPrinter;
+
+    @ShellMethod(value = "Create new author", key = {"createAuthor"})
+    public void create(String name) {
+        Author author = authorDao.create(new Author(name));
+        authorPrinter.print("Author has been created: ", author);
+    }
+
+    @ShellMethod(value = "Update author by id", key = {"updateAuthor"})
+    public String update(long id, String name) {
+        Author author = new Author(id, name);
+        authorDao.update(author);
+        return "Author has been updated";
+    }
+
+    @ShellMethod(value = "Get author by id", key = {"getAuthor"})
+    public void get(long id) {
+        Author author = authorDao.getById(id);
+        authorPrinter.print(author);
+    }
+
+    @ShellMethod(value = "Show all authors", key = {"allAuthors"})
+    public void all() {
+        authorPrinter.print(authorDao.getAll());
+    }
+
+    @ShellMethod(value = "Delete author by id", key = {"deleteAuthor"})
+    public String delete(long id) {
+        return authorDao.deleteById(id) != null ? "Author has been deleted" : "Author hasn't been deleted";
+    }
+
+
+}
