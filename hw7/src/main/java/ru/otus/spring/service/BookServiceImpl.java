@@ -12,7 +12,6 @@ import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exceptions.BookServiceException;
 
 import java.util.List;
-import java.util.Optional;
 
 import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
 
@@ -34,20 +33,18 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public Book create(String bookName, long authorId, long genreId) throws BookServiceException {
-        Optional<Author> author = authorDao.findById(authorId);
-        Optional<Genre> genre = genreDao.findById(genreId);
-        validateAuthorAndGenre(author, genre);
-        Book book = new Book(bookName, author.get(), genre.get());
+        Author author = getAuthor(authorId);
+        Genre genre = getGenre(genreId);
+        Book book = new Book(bookName, author, genre);
         return bookDao.save(book);
     }
 
     @Transactional
     @Override
     public void update(long id, String bookName, long authorId, long genreId) throws BookServiceException {
-        Optional<Author> author = authorDao.findById(authorId);
-        Optional<Genre> genre = genreDao.findById(genreId);
-        validateAuthorAndGenre(author, genre);
-        Book book = new Book(id, bookName, author.get(), genre.get());
+        Author author = getAuthor(authorId);
+        Genre genre = getGenre(genreId);
+        Book book = new Book(id, bookName, author, genre);
         bookDao.save(book);
     }
 
@@ -60,11 +57,8 @@ public class BookServiceImpl implements BookService {
     @Override
     @SuppressWarnings("unused")
     public Book getById(long id) {
-        Optional<Book> bookOptional = bookDao.getByIdWithInitializedComments(id);
-        if (bookOptional.isEmpty()) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Book", id));
-        }
-        return bookOptional.get();
+        return bookDao.getByIdWithInitializedComments(id).orElseThrow(
+                () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Book", id)));
     }
 
     @Transactional
@@ -73,12 +67,12 @@ public class BookServiceImpl implements BookService {
         bookDao.deleteById(id);
     }
 
-    private void validateAuthorAndGenre(Optional<Author> author, Optional<Genre> genre) throws BookServiceException {
-        if (author.isEmpty()) {
-            throw new BookServiceException("Author not found");
-        }
-        if (genre.isEmpty()) {
-            throw new BookServiceException("Genre not found");
-        }
+    private Genre getGenre(long genreId) throws BookServiceException {
+        return genreDao.findById(genreId).orElseThrow(() -> new BookServiceException("Genre not found"));
     }
+
+    private Author getAuthor(long authorId) throws BookServiceException {
+        return authorDao.findById(authorId).orElseThrow(() -> new BookServiceException("Author not found"));
+    }
+
 }

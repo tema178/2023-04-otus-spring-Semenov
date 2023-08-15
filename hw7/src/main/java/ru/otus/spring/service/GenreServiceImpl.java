@@ -7,7 +7,6 @@ import ru.otus.spring.dao.GenreDao;
 import ru.otus.spring.domain.Genre;
 
 import java.util.List;
-import java.util.Optional;
 
 import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
 
@@ -29,11 +28,8 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public Genre getById(long id) {
-        Optional<Genre> optionalGenre = dao.findById(id);
-        if (optionalGenre.isEmpty()) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Genre", id));
-        }
-        return optionalGenre.get();
+        return dao.findById(id).orElseThrow(
+                () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Genre", id)));
     }
 
     @Override

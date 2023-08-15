@@ -7,7 +7,6 @@ import ru.otus.spring.dao.CommentDao;
 import ru.otus.spring.domain.Comment;
 
 import java.util.List;
-import java.util.Optional;
 
 import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
 
@@ -35,11 +34,8 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     @Override
     public void update(long id, String comment) {
-        Optional<Comment> optionalComment = dao.findById(id);
-        if (optionalComment.isEmpty()) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Author", id));
-        }
-        Comment original = optionalComment.get();
+        Comment original = dao.findById(id).orElseThrow(
+                () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Author", id)));
         original.setBody(comment);
         dao.save(original);
     }

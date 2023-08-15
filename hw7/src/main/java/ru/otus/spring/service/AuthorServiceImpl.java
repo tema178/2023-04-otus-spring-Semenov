@@ -7,7 +7,6 @@ import ru.otus.spring.dao.AuthorDao;
 import ru.otus.spring.domain.Author;
 
 import java.util.List;
-import java.util.Optional;
 
 import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
 
@@ -29,11 +28,8 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public Author getById(long id) {
-        Optional<Author> optionalAuthor = dao.findById(id);
-        if (optionalAuthor.isEmpty()) {
-            throw new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Author", id));
-        }
-        return optionalAuthor.get();
+        return dao.findById(id).orElseThrow(
+                () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Author", id)));
     }
 
     @Override
