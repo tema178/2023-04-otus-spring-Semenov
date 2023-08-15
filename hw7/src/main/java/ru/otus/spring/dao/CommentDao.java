@@ -1,15 +1,15 @@
 package ru.otus.spring.dao;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.otus.spring.domain.Comment;
 
 import java.util.List;
 
-public interface CommentDao {
-    Comment create(Comment comment);
 
-    List<Comment> getAllCommentsForBook(long bookId);
+public interface CommentDao extends JpaRepository<Comment, Long> {
 
-    void update(long id, String comment);
-
-    Comment deleteById(long id);
+    @Query("select e from Comment e where e.book.id = :book_id")
+    List<Comment> getAllCommentsForBook(@Param("book_id") long bookId);
 }

@@ -19,14 +19,14 @@ public class AuthorCommands {
 
     @ShellMethod(value = "Create new author", key = {"createAuthor"})
     public void create(String name) {
-        Author author = authorDao.create(new Author(name));
+        Author author = authorDao.save(new Author(name));
         authorPrinter.print("Author has been created: ", author);
     }
 
     @ShellMethod(value = "Update author by id", key = {"updateAuthor"})
     public String update(long id, String name) {
         Author author = new Author(id, name);
-        authorDao.update(author);
+        authorDao.save(author);
         return "Author has been updated";
     }
 
@@ -43,7 +43,8 @@ public class AuthorCommands {
 
     @ShellMethod(value = "Delete author by id", key = {"deleteAuthor"})
     public String delete(long id) {
-        return authorDao.deleteById(id) != null ? "Author has been deleted" : "Author hasn't been deleted";
+        authorDao.deleteById(id);
+        return "Author has been deleted";
     }
 
 

@@ -1,11 +1,15 @@
 package ru.otus.spring.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.dao.AuthorDao;
 import ru.otus.spring.domain.Author;
 
 import java.util.List;
+import java.util.Optional;
+
+import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
 
 @Component
 @SuppressWarnings("unused")
@@ -19,30 +23,28 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Transactional
     @Override
-    public Author create(Author author) {
-        return dao.create(author);
+    public Author save(Author author) {
+        return dao.save(author);
     }
 
     @Override
     public Author getById(long id) {
-        return dao.getById(id);
+        Optional<Author> optionalAuthor = dao.findById(id);
+        if (optionalAuthor.isEmpty()) {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Author", id));
+        }
+        return optionalAuthor.get();
     }
 
     @Override
     public List<Author> getAll() {
-        return dao.getAll();
+        return dao.findAll();
     }
 
     @Transactional
     @Override
-    public void update(Author author) {
-        dao.update(author);
-    }
-
-    @Transactional
-    @Override
-    public Author deleteById(long id) {
-        return dao.deleteById(id);
+    public void deleteById(long id) {
+        dao.deleteById(id);
     }
 
 }

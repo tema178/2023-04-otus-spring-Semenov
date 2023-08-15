@@ -1,11 +1,15 @@
 package ru.otus.spring.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.dao.GenreDao;
 import ru.otus.spring.domain.Genre;
 
 import java.util.List;
+import java.util.Optional;
+
+import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
 
 @Component
 @SuppressWarnings("unused")
@@ -19,30 +23,28 @@ public class GenreServiceImpl implements GenreService {
 
     @Transactional
     @Override
-    public Genre create(Genre genre) {
-        return dao.create(genre);
+    public Genre save(Genre genre) {
+        return dao.save(genre);
     }
 
     @Override
     public Genre getById(long id) {
-        return dao.getById(id);
+        Optional<Genre> optionalGenre = dao.findById(id);
+        if (optionalGenre.isEmpty()) {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Genre", id));
+        }
+        return optionalGenre.get();
     }
 
     @Override
     public List<Genre> getAll() {
-        return dao.getAll();
+        return dao.findAll();
     }
 
     @Transactional
     @Override
-    public void update(Genre genre) {
-        dao.update(genre);
-    }
-
-    @Transactional
-    @Override
-    public Genre deleteById(long id) {
-        return dao.deleteById(id);
+    public void deleteById(long id) {
+        dao.deleteById(id);
     }
 
 }

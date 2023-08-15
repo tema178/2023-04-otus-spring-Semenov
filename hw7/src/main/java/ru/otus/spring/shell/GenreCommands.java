@@ -19,14 +19,14 @@ public class GenreCommands {
 
     @ShellMethod(value = "Create new genre", key = {"createGenre"})
     public void create(String name) {
-        Genre genre = genreDao.create(new Genre(name));
+        Genre genre = genreDao.save(new Genre(name));
         genrePrinter.print("Genre has been created: ", genre);
     }
 
     @ShellMethod(value = "Update genre by id", key = {"updateGenre"})
     public String update(long id, String name) {
         Genre genre = new Genre(id, name);
-        genreDao.update(genre);
+        genreDao.save(genre);
         return "Genre has been updated";
     }
 
@@ -44,7 +44,8 @@ public class GenreCommands {
 
     @ShellMethod(value = "Delete genre by id", key = {"deleteGenre"})
     public String delete(long id) {
-        return genreDao.deleteById(id) != null ? "Genre has been deleted" : "Genre hasn't been deleted";
+        genreDao.deleteById(id);
+        return "Genre has been deleted";
     }
 
 

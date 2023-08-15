@@ -11,5 +11,5 @@ public interface CommentService {
 
     void update(long id, String comment);
 
-    Comment deleteById(long id);
+    void deleteById(long id);
 }

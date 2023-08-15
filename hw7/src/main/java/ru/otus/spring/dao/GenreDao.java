@@ -1,17 +1,8 @@
 package ru.otus.spring.dao;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import ru.otus.spring.domain.Genre;
 
-import java.util.List;
 
-public interface GenreDao {
-    Genre create(Genre genre);
-
-    Genre getById(long id);
-
-    List<Genre> getAll();
-
-    void update(Genre genre);
-
-    Genre deleteById(long id);
+public interface GenreDao extends JpaRepository<Genre, Long> {
 }

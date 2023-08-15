@@ -1,5 +1,6 @@
 package ru.otus.spring.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.dao.AuthorDao;
@@ -7,11 +8,13 @@ import ru.otus.spring.dao.BookDao;
 import ru.otus.spring.dao.GenreDao;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
-import ru.otus.spring.domain.Comment;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exceptions.BookServiceException;
 
 import java.util.List;
+import java.util.Optional;
+
+import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
 
 @Component
 public class BookServiceImpl implements BookService {
@@ -31,48 +34,50 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public Book create(String bookName, long authorId, long genreId) throws BookServiceException {
-        Author author = authorDao.getById(authorId);
-        Genre genre = genreDao.getById(genreId);
+        Optional<Author> author = authorDao.findById(authorId);
+        Optional<Genre> genre = genreDao.findById(genreId);
         validateAuthorAndGenre(author, genre);
-        Book book = new Book(bookName, author, genre);
-        return bookDao.create(book);
+        Book book = new Book(bookName, author.get(), genre.get());
+        return bookDao.save(book);
     }
 
     @Transactional
     @Override
     public void update(long id, String bookName, long authorId, long genreId) throws BookServiceException {
-        Author author = authorDao.getById(authorId);
-        Genre genre = genreDao.getById(genreId);
+        Optional<Author> author = authorDao.findById(authorId);
+        Optional<Genre> genre = genreDao.findById(genreId);
         validateAuthorAndGenre(author, genre);
-        Book book = new Book(id, bookName, author, genre);
-        bookDao.update(book);
+        Book book = new Book(id, bookName, author.get(), genre.get());
+        bookDao.save(book);
     }
 
     @Override
     public List<Book> getAll() {
-        return bookDao.getAll();
+        return bookDao.findAll();
     }
 
     @Transactional
     @Override
     @SuppressWarnings("unused")
     public Book getById(long id) {
-        Book book = bookDao.getById(id);
-        List<Comment> comments = book.getComments();
-        return book;
+        Optional<Book> bookOptional = bookDao.getByIdWithInitializedComments(id);
+        if (bookOptional.isEmpty()) {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Book", id));
+        }
+        return bookOptional.get();
     }
 
     @Transactional
     @Override
-    public Book deleteById(long id) {
-        return bookDao.deleteById(id);
+    public void deleteById(long id) {
+        bookDao.deleteById(id);
     }
 
-    private void validateAuthorAndGenre(Author author, Genre genre) throws BookServiceException {
-        if (author == null) {
+    private void validateAuthorAndGenre(Optional<Author> author, Optional<Genre> genre) throws BookServiceException {
+        if (author.isEmpty()) {
             throw new BookServiceException("Author not found");
         }
-        if (genre == null) {
+        if (genre.isEmpty()) {
             throw new BookServiceException("Genre not found");
         }
     }

@@ -1,11 +1,15 @@
 package ru.otus.spring.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.dao.CommentDao;
 import ru.otus.spring.domain.Comment;
 
 import java.util.List;
+import java.util.Optional;
+
+import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
 
 @Component
 @SuppressWarnings("unused")
@@ -20,7 +24,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     @Override
     public Comment create(Comment comment) {
-        return dao.create(comment);
+        return dao.save(comment);
     }
 
     @Override
@@ -31,13 +35,19 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     @Override
     public void update(long id, String comment) {
-        dao.update(id, comment);
+        Optional<Comment> optionalComment = dao.findById(id);
+        if (optionalComment.isEmpty()) {
+            throw new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Author", id));
+        }
+        Comment original = optionalComment.get();
+        original.setBody(comment);
+        dao.save(original);
     }
 
     @Transactional
     @Override
-    public Comment deleteById(long id) {
-        return dao.deleteById(id);
+    public void deleteById(long id) {
+        dao.deleteById(id);
     }
 
 }

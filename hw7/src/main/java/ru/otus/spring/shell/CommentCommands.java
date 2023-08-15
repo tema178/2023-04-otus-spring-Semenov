@@ -1,5 +1,6 @@
 package ru.otus.spring.shell;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -18,7 +19,7 @@ public class CommentCommands {
     private final CommentPrinter commentPrinter;
 
     @ShellMethod(value = "Create new comment", key = {"addComment"})
-    public void create(long bookId, String commentText) {
+    public void create(long bookId, @NonNull String commentText) {
         Comment comment = commentDao.create(new Comment(bookId, commentText));
         commentPrinter.print("Comment has been created: ", comment);
     }
@@ -36,7 +37,8 @@ public class CommentCommands {
 
     @ShellMethod(value = "Delete comment by id", key = {"deleteComment"})
     public String delete(long id) {
-        return commentDao.deleteById(id) != null ? "Comment has been deleted" : "Comment hasn't been deleted";
+        commentDao.deleteById(id);
+        return "Comment has been deleted";
     }
 
 

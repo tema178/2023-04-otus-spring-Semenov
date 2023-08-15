@@ -16,9 +16,9 @@ import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exceptions.BookServiceException;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -31,13 +31,13 @@ class BookServiceImplTest {
 
     private static final String TEST_BOOK_NAME = "Test book";
 
-    private static final int IVAN_ID = 1;
+    private static final long IVAN_ID = 1;
 
     private static final Author AUTHOR_IVAN = new Author(IVAN_ID, null);
 
     private static final Author AUTHOR_IVAN_FULL = new Author(IVAN_ID, "Ivan");
 
-    private static final int ACTION_GENRE_ID = 1;
+    private static final long ACTION_GENRE_ID = 1;
 
     private static final Genre ACTION_GENRE = new Genre(ACTION_GENRE_ID, null);
 
@@ -51,7 +51,7 @@ class BookServiceImplTest {
 
     private static final Author AUTHOR_NIKOLAY_FULL = new Author(NIKOLAY_ID, "Nikolay");
 
-    private static final int FIRST_BOOK_ID = 1;
+    private static final long FIRST_BOOK_ID = 1;
 
     private static final String FIRST_BOOK_NAME = "Book of Ivan";
 
@@ -88,9 +88,9 @@ class BookServiceImplTest {
     @DisplayName("Создать новую книгу")
     @Test
     void shouldInsertNewBook() throws BookServiceException {
-        given(bookDao.create(any())).willReturn(BOOK_FULL);
-        given(authorDao.getById(IVAN_ID)).willReturn(AUTHOR_IVAN_FULL);
-        given(genreDao.getById(ACTION_GENRE_ID)).willReturn(ACTION_GENRE_FULL);
+        given(bookDao.save(any())).willReturn(BOOK_FULL);
+        given(authorDao.findById(IVAN_ID)).willReturn(Optional.of(AUTHOR_IVAN_FULL));
+        given(genreDao.findById(ACTION_GENRE_ID)).willReturn(Optional.of(ACTION_GENRE_FULL));
         Book result = bookService.create(TEST_BOOK_NAME, IVAN_ID, ACTION_GENRE_ID);
         assertThat(result.getName()).isEqualTo(BOOK.getName());
         assertThat(result.getAuthor()).isEqualTo(BOOK_FULL.getAuthor());
@@ -100,7 +100,7 @@ class BookServiceImplTest {
     @DisplayName("Получить книгу по id")
     @Test
     void shouldGetBookById() {
-        given(bookDao.getById(FIRST_BOOK_ID)).willReturn(FIRST_BOOK_FULL);
+        given(bookDao.getByIdWithInitializedComments(FIRST_BOOK_ID)).willReturn(Optional.of(FIRST_BOOK_FULL));
         Book book = bookService.getById(FIRST_BOOK_ID);
         assertThat(book.getName()).isEqualTo(FIRST_BOOK_FULL.getName());
         assertThat(book.getAuthor()).isEqualTo(FIRST_BOOK_FULL.getAuthor());
@@ -110,17 +110,8 @@ class BookServiceImplTest {
     @DisplayName("Получить все книги")
     @Test
     void shouldGetBooks() {
-        given(bookDao.getAll()).willReturn(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
+        given(bookDao.findAll()).willReturn(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
         List<Book> book = bookService.getAll();
         assertThat(book).hasSize(EXPECTED_LIBRARY_SIZE).isEqualTo(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
-    }
-
-    @DisplayName("Удалить книгу по id")
-    @Test
-    void shouldDeleteBookById() {
-        given(bookDao.deleteById(FIRST_BOOK_ID)).willReturn(FIRST_BOOK_FULL);
-        Book book = bookService.deleteById(FIRST_BOOK_ID);
-        assertThat(book.getId()).isEqualTo(FIRST_BOOK_ID);
-        assertNull(bookDao.getById(FIRST_BOOK_ID));
     }
 }
