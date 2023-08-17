@@ -7,9 +7,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
-import ru.otus.spring.dao.AuthorDao;
-import ru.otus.spring.dao.BookDao;
-import ru.otus.spring.dao.GenreDao;
+import ru.otus.spring.repository.AuthorRepository;
+import ru.otus.spring.repository.BookRepository;
+import ru.otus.spring.repository.GenreRepository;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
@@ -74,23 +74,23 @@ class BookServiceImplTest {
 
     @MockBean
     @SuppressWarnings("unused")
-    private BookDao bookDao;
+    private BookRepository bookRepository;
 
     @MockBean
     @SuppressWarnings("unused")
-    private AuthorDao authorDao;
+    private AuthorRepository authorRepository;
 
     @MockBean
     @SuppressWarnings("unused")
-    private GenreDao genreDao;
+    private GenreRepository genreRepository;
 
 
     @DisplayName("Создать новую книгу")
     @Test
     void shouldInsertNewBook() throws BookServiceException {
-        given(bookDao.save(any())).willReturn(BOOK_FULL);
-        given(authorDao.findById(IVAN_ID)).willReturn(Optional.of(AUTHOR_IVAN_FULL));
-        given(genreDao.findById(ACTION_GENRE_ID)).willReturn(Optional.of(ACTION_GENRE_FULL));
+        given(bookRepository.save(any())).willReturn(BOOK_FULL);
+        given(authorRepository.findById(IVAN_ID)).willReturn(Optional.of(AUTHOR_IVAN_FULL));
+        given(genreRepository.findById(ACTION_GENRE_ID)).willReturn(Optional.of(ACTION_GENRE_FULL));
         Book result = bookService.create(TEST_BOOK_NAME, IVAN_ID, ACTION_GENRE_ID);
         assertThat(result.getName()).isEqualTo(BOOK.getName());
         assertThat(result.getAuthor()).isEqualTo(BOOK_FULL.getAuthor());
@@ -100,7 +100,7 @@ class BookServiceImplTest {
     @DisplayName("Получить книгу по id")
     @Test
     void shouldGetBookById() {
-        given(bookDao.getByIdWithInitializedComments(FIRST_BOOK_ID)).willReturn(Optional.of(FIRST_BOOK_FULL));
+        given(bookRepository.findById(FIRST_BOOK_ID)).willReturn(Optional.of(FIRST_BOOK_FULL));
         Book book = bookService.getById(FIRST_BOOK_ID);
         assertThat(book.getName()).isEqualTo(FIRST_BOOK_FULL.getName());
         assertThat(book.getAuthor()).isEqualTo(FIRST_BOOK_FULL.getAuthor());
@@ -110,7 +110,7 @@ class BookServiceImplTest {
     @DisplayName("Получить все книги")
     @Test
     void shouldGetBooks() {
-        given(bookDao.findAll()).willReturn(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
+        given(bookRepository.findAll()).willReturn(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
         List<Book> book = bookService.getAll();
         assertThat(book).hasSize(EXPECTED_LIBRARY_SIZE).isEqualTo(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
     }

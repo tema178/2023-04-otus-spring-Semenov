@@ -46,7 +46,6 @@ public class Book {
     @OneToMany(targetEntity = Comment.class, fetch = FetchType.LAZY, mappedBy = "book")
     private List<Comment> comments;
 
-
     public Book(String name, Author author, Genre genre) {
         this.id = 0;
         this.name = name;
@@ -61,6 +60,10 @@ public class Book {
         this.author = author;
         this.genre = genre;
         this.comments = Collections.emptyList();
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 
 }

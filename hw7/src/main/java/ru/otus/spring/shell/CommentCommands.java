@@ -14,30 +14,30 @@ import ru.otus.spring.utils.CommentPrinter;
 public class CommentCommands {
 
 
-    private final CommentService commentDao;
+    private final CommentService commentService;
 
     private final CommentPrinter commentPrinter;
 
     @ShellMethod(value = "Create new comment", key = {"addComment"})
     public void create(long bookId, @NonNull String commentText) {
-        Comment comment = commentDao.create(new Comment(bookId, commentText));
+        Comment comment = commentService.create(new Comment(bookId, commentText));
         commentPrinter.print("Comment has been created: ", comment);
     }
 
     @ShellMethod(value = "Update comment by id", key = {"changeComment"})
     public String update(long id, String comment) {
-        commentDao.update(id, comment);
+        commentService.update(id, comment);
         return "Comment has been updated";
     }
 
     @ShellMethod(value = "Show all comments for book by id", key = {"allComments"})
     public void all(long bookId) {
-        commentPrinter.print(commentDao.getAllCommentsForBook(bookId));
+        commentPrinter.print(commentService.getAllCommentsForBook(bookId));
     }
 
     @ShellMethod(value = "Delete comment by id", key = {"deleteComment"})
     public String delete(long id) {
-        commentDao.deleteById(id);
+        commentService.deleteById(id);
         return "Comment has been deleted";
     }
 

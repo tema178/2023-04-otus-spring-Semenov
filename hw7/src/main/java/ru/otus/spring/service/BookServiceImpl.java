@@ -3,9 +3,10 @@ package ru.otus.spring.service;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import ru.otus.spring.dao.AuthorDao;
-import ru.otus.spring.dao.BookDao;
-import ru.otus.spring.dao.GenreDao;
+import ru.otus.spring.repository.AuthorRepository;
+import ru.otus.spring.repository.BookRepository;
+import ru.otus.spring.repository.CommentRepository;
+import ru.otus.spring.repository.GenreRepository;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
@@ -18,16 +19,20 @@ import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMes
 @Component
 public class BookServiceImpl implements BookService {
 
-    private final BookDao bookDao;
+    private final BookRepository bookRepository;
 
-    private final AuthorDao authorDao;
+    private final AuthorRepository authorRepository;
 
-    private final GenreDao genreDao;
+    private final GenreRepository genreRepository;
 
-    public BookServiceImpl(BookDao bookDao, AuthorDao authorDao, GenreDao genreDao) {
-        this.bookDao = bookDao;
-        this.authorDao = authorDao;
-        this.genreDao = genreDao;
+    private final CommentRepository commentRepository;
+
+    public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository,
+                           GenreRepository genreRepository, CommentRepository commentRepository) {
+        this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
+        this.genreRepository = genreRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Transactional
@@ -36,7 +41,7 @@ public class BookServiceImpl implements BookService {
         Author author = getAuthor(authorId);
         Genre genre = getGenre(genreId);
         Book book = new Book(bookName, author, genre);
-        return bookDao.save(book);
+        return bookRepository.save(book);
     }
 
     @Transactional
@@ -45,34 +50,36 @@ public class BookServiceImpl implements BookService {
         Author author = getAuthor(authorId);
         Genre genre = getGenre(genreId);
         Book book = new Book(id, bookName, author, genre);
-        bookDao.save(book);
+        bookRepository.save(book);
     }
 
     @Override
     public List<Book> getAll() {
-        return bookDao.findAll();
+        return bookRepository.findAll();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     @SuppressWarnings("unused")
     public Book getById(long id) {
-        return bookDao.getByIdWithInitializedComments(id).orElseThrow(
+        Book book = bookRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Book", id)));
+        book.setComments(commentRepository.getAllCommentsForBook(id));
+        return book;
     }
 
     @Transactional
     @Override
     public void deleteById(long id) {
-        bookDao.deleteById(id);
+        bookRepository.deleteById(id);
     }
 
     private Genre getGenre(long genreId) throws BookServiceException {
-        return genreDao.findById(genreId).orElseThrow(() -> new BookServiceException("Genre not found"));
+        return genreRepository.findById(genreId).orElseThrow(() -> new BookServiceException("Genre not found"));
     }
 
     private Author getAuthor(long authorId) throws BookServiceException {
-        return authorDao.findById(authorId).orElseThrow(() -> new BookServiceException("Author not found"));
+        return authorRepository.findById(authorId).orElseThrow(() -> new BookServiceException("Author not found"));
     }
 
 }

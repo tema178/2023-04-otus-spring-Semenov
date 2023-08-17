@@ -7,7 +7,6 @@ import ru.otus.spring.domain.Book;
 import ru.otus.spring.exceptions.BookServiceException;
 import ru.otus.spring.service.BookService;
 import ru.otus.spring.service.InputService;
-import ru.otus.spring.service.OutputService;
 import ru.otus.spring.utils.BookPrinter;
 
 
@@ -21,8 +20,6 @@ public class BookCommands {
 
     private final InputService inputService;
 
-    private final OutputService outputService;
-
     private final BookPrinter bookPrinter;
 
 
@@ -32,17 +29,12 @@ public class BookCommands {
     }
 
     @ShellMethod(value = "Create new book", key = {"createBook"})
-    public String create() {
+    public void create() throws BookServiceException {
         String bookName = inputService.readStringWithPrompt("Enter book name:");
         long authorId = inputService.readLongWithPrompt("Enter author id:");
         long genreId = inputService.readLongWithPrompt("Enter genre id:");
-        try {
-            Book book = quizService.create(bookName, authorId, genreId);
-            bookPrinter.print("Book has been created: ", book);
-            return null;
-        } catch (BookServiceException e) {
-            return e.getMessage();
-        }
+        Book book = quizService.create(bookName, authorId, genreId);
+        bookPrinter.print("Book has been created: ", book);
     }
 
     @ShellMethod(value = "Update book by id", key = {"updateBook"})
