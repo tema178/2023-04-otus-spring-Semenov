@@ -64,7 +64,7 @@ public class BookServiceImpl implements BookService {
     public Book getById(long id) {
         Book book = bookRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Book", id)));
-        book.setComments(commentRepository.getAllCommentsForBook(id));
+        book.setComments(commentRepository.getCommentsByBookId(id));
         return book;
     }
 

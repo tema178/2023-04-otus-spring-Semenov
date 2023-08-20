@@ -21,7 +21,7 @@ class CommentRepositoryJpaTest {
     @DisplayName("Получить комментарии для книги")
     @Test
     void shouldGetCommentById() {
-        List<Comment> allCommentsForBook = repository.getAllCommentsForBook(2);
+        List<Comment> allCommentsForBook = repository.getCommentsByBookId(2);
         assertThat(allCommentsForBook).hasSize(2);
     }
 }
