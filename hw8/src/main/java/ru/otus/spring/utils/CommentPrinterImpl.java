@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.otus.spring.domain.Comment;
 import ru.otus.spring.service.OutputService;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -19,7 +20,7 @@ public class CommentPrinterImpl implements CommentPrinter {
     @Override
     public void print(Comment comment) {
         String format = String.format("- id: %s, %s",
-                comment.getId(), comment.getBody());
+                comment.getId(), comment.getText());
         outputService.outputString(format);
     }
 
@@ -35,7 +36,7 @@ public class CommentPrinterImpl implements CommentPrinter {
         if (comments.isEmpty()) {
             outputService.outputString("No comments yet");
         }
-        comments.sort((b1, b2) -> b1.getId() > b2.getId() ? 1 : -1);
+        comments.sort(Comparator.comparing(Comment::getText));
         for (var comment : comments) {
             print(comment);
         }

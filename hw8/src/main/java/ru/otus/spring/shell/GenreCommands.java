@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import ru.otus.spring.domain.Genre;
+import ru.otus.spring.exceptions.DeletedGenreHasBooksException;
 import ru.otus.spring.service.GenreService;
 import ru.otus.spring.utils.GenrePrinter;
 
@@ -24,14 +25,14 @@ public class GenreCommands {
     }
 
     @ShellMethod(value = "Update genre by id", key = {"updateGenre"})
-    public String update(long id, String name) {
+    public String update(String id, String name) {
         Genre genre = new Genre(id, name);
         genreService.save(genre);
         return "Genre has been updated";
     }
 
     @ShellMethod(value = "Get genre by id", key = {"getGenre"})
-    public void get(long id) {
+    public void get(String id) {
         Genre genre = genreService.getById(id);
         genrePrinter.print(genre);
     }
@@ -43,10 +44,12 @@ public class GenreCommands {
 
 
     @ShellMethod(value = "Delete genre by id", key = {"deleteGenre"})
-    public String delete(long id) {
-        genreService.deleteById(id);
+    public String delete(String id) {
+        try {
+            genreService.deleteById(id);
+        } catch (DeletedGenreHasBooksException e) {
+            return "Can't delete genre. Library has books with this genre";
+        }
         return "Genre has been deleted";
     }
-
-
 }

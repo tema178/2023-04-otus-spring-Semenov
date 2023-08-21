@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import ru.otus.spring.domain.Author;
+import ru.otus.spring.exceptions.DeletedAuthorHasBooksException;
 import ru.otus.spring.service.AuthorService;
 import ru.otus.spring.utils.AuthorPrinter;
 
@@ -24,14 +25,14 @@ public class AuthorCommands {
     }
 
     @ShellMethod(value = "Update author by id", key = {"updateAuthor"})
-    public String update(long id, String name) {
+    public String update(String id, String name) {
         Author author = new Author(id, name);
         service.save(author);
         return "Author has been updated";
     }
 
     @ShellMethod(value = "Get author by id", key = {"getAuthor"})
-    public void get(long id) {
+    public void get(String id) {
         Author author = service.getById(id);
         authorPrinter.print(author);
     }
@@ -42,8 +43,12 @@ public class AuthorCommands {
     }
 
     @ShellMethod(value = "Delete author by id", key = {"deleteAuthor"})
-    public String delete(long id) {
-        service.deleteById(id);
+    public String delete(String id) {
+        try {
+            service.deleteById(id);
+        } catch (DeletedAuthorHasBooksException e) {
+            return "Can't delete author. Library has books with this author";
+        }
         return "Author has been deleted";
     }
 

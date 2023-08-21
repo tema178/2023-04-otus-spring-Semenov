@@ -7,8 +7,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
+import ru.otus.spring.domain.BookWithoutComments;
 import ru.otus.spring.repository.AuthorRepository;
 import ru.otus.spring.repository.BookRepository;
+import ru.otus.spring.repository.BookWithoutCommentsRepository;
 import ru.otus.spring.repository.GenreRepository;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
@@ -27,17 +29,17 @@ import static org.mockito.BDDMockito.given;
 @Import({BookServiceImpl.class})
 class BookServiceImplTest {
 
-    private static final int TEST_BOOK_ID = 5;
+    private static final String TEST_BOOK_ID = "5";
 
     private static final String TEST_BOOK_NAME = "Test book";
 
-    private static final long IVAN_ID = 1;
+    private static final String IVAN_ID = "1";
 
     private static final Author AUTHOR_IVAN = new Author(IVAN_ID, null);
 
     private static final Author AUTHOR_IVAN_FULL = new Author(IVAN_ID, "Ivan");
 
-    private static final long ACTION_GENRE_ID = 1;
+    private static final String ACTION_GENRE_ID = "1";
 
     private static final Genre ACTION_GENRE = new Genre(ACTION_GENRE_ID, null);
 
@@ -47,24 +49,27 @@ class BookServiceImplTest {
 
     private static final Book BOOK_FULL = new Book(TEST_BOOK_ID, TEST_BOOK_NAME, AUTHOR_IVAN_FULL, ACTION_GENRE_FULL);
 
-    private static final int NIKOLAY_ID = 2;
+    private static final String NIKOLAY_ID = "2";
 
     private static final Author AUTHOR_NIKOLAY_FULL = new Author(NIKOLAY_ID, "Nikolay");
 
-    private static final long FIRST_BOOK_ID = 1;
+    private static final String FIRST_BOOK_ID = "1";
 
     private static final String FIRST_BOOK_NAME = "Book of Ivan";
 
     private static final Book FIRST_BOOK_FULL = new Book(FIRST_BOOK_ID, FIRST_BOOK_NAME,
             AUTHOR_IVAN_FULL, ACTION_GENRE_FULL);
 
+    private static final BookWithoutComments FIRST_BOOK_FULL_WITHOUT_COMMENTS = new BookWithoutComments(FIRST_BOOK_ID,
+            FIRST_BOOK_NAME, AUTHOR_IVAN_FULL, ACTION_GENRE_FULL);
 
-    private static final int SECOND_BOOK_ID = 2;
+
+    private static final String SECOND_BOOK_ID = "2";
 
     private static final String SECOND_BOOK_NAME = "Book of Nikolay";
 
-    private static final Book SECOND_BOOK_FULL = new Book(SECOND_BOOK_ID, SECOND_BOOK_NAME,
-            AUTHOR_NIKOLAY_FULL, ACTION_GENRE_FULL);
+    private static final BookWithoutComments SECOND_BOOK_FULL_WITHOUT_COMMENTS = new BookWithoutComments(SECOND_BOOK_ID,
+            SECOND_BOOK_NAME, AUTHOR_NIKOLAY_FULL, ACTION_GENRE_FULL);
 
     private static final int EXPECTED_LIBRARY_SIZE = 2;
 
@@ -75,6 +80,10 @@ class BookServiceImplTest {
     @MockBean
     @SuppressWarnings("unused")
     private BookRepository bookRepository;
+
+    @MockBean
+    @SuppressWarnings("unused")
+    private BookWithoutCommentsRepository bookWithoutCommentsRepository;
 
     @MockBean
     @SuppressWarnings("unused")
@@ -110,8 +119,10 @@ class BookServiceImplTest {
     @DisplayName("Получить все книги")
     @Test
     void shouldGetBooks() {
-        given(bookRepository.findAll()).willReturn(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
-        List<Book> book = bookService.getAll();
-        assertThat(book).hasSize(EXPECTED_LIBRARY_SIZE).isEqualTo(List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
+        given(bookWithoutCommentsRepository.findAll()).willReturn(
+                List.of(FIRST_BOOK_FULL_WITHOUT_COMMENTS, SECOND_BOOK_FULL_WITHOUT_COMMENTS));
+        List<BookWithoutComments> book = bookService.findAll();
+        assertThat(book).hasSize(EXPECTED_LIBRARY_SIZE).isEqualTo(
+                List.of(FIRST_BOOK_FULL_WITHOUT_COMMENTS, SECOND_BOOK_FULL_WITHOUT_COMMENTS));
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.service.OutputService;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -31,7 +32,7 @@ public class AuthorPrinterImpl implements AuthorPrinter {
 
     @Override
     public void print(List<Author> authors) {
-        authors.sort((b1, b2) -> b1.getId() > b2.getId() ? 1 : -1);
+        authors.sort(Comparator.comparing(Author::getName));
         for (var author : authors) {
             print(author);
         }

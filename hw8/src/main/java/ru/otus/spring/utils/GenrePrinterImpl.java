@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.service.OutputService;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -31,7 +32,7 @@ public class GenrePrinterImpl implements GenrePrinter {
 
     @Override
     public void print(List<Genre> genres) {
-        genres.sort((b1, b2) -> b1.getId() > b2.getId() ? 1 : -1);
+        genres.sort(Comparator.comparing(Genre::getName));
         for (var genre : genres) {
             print(genre);
         }

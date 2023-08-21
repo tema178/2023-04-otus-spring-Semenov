@@ -9,16 +9,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Document(collection = "genres")
-public class Genre {
+@Document("books")
+public class BookWithoutComments {
 
     @Id
     private String id;
 
     private String name;
 
-    public Genre(String name) {
-        this.id = null;
-        this.name = name;
-    }
+    private Author author;
+
+    private Genre genre;
 }

@@ -1,11 +1,11 @@
 package ru.otus.spring.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import ru.otus.spring.domain.BookWithoutComments;
+import ru.otus.spring.domain.Comment;
 import ru.otus.spring.repository.AuthorRepository;
 import ru.otus.spring.repository.BookRepository;
-import ru.otus.spring.repository.CommentRepository;
+import ru.otus.spring.repository.BookWithoutCommentsRepository;
 import ru.otus.spring.repository.GenreRepository;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
@@ -14,7 +14,6 @@ import ru.otus.spring.exceptions.BookServiceException;
 
 import java.util.List;
 
-import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
 
 @Component
 public class BookServiceImpl implements BookService {
@@ -25,28 +24,28 @@ public class BookServiceImpl implements BookService {
 
     private final GenreRepository genreRepository;
 
-    private final CommentRepository commentRepository;
+    private final BookWithoutCommentsRepository bookWithoutCommentsRepository;
+
 
     public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository,
-                           GenreRepository genreRepository, CommentRepository commentRepository) {
+                           GenreRepository genreRepository,
+                           BookWithoutCommentsRepository bookWithoutCommentsRepository) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
-        this.commentRepository = commentRepository;
+        this.bookWithoutCommentsRepository = bookWithoutCommentsRepository;
     }
 
-    @Transactional
     @Override
-    public Book create(String bookName, long authorId, long genreId) throws BookServiceException {
+    public Book create(String bookName, String authorId, String genreId) throws BookServiceException {
         Author author = getAuthor(authorId);
         Genre genre = getGenre(genreId);
         Book book = new Book(bookName, author, genre);
         return bookRepository.save(book);
     }
 
-    @Transactional
     @Override
-    public void update(long id, String bookName, long authorId, long genreId) throws BookServiceException {
+    public void update(String id, String bookName, String authorId, String genreId) throws BookServiceException {
         Author author = getAuthor(authorId);
         Genre genre = getGenre(genreId);
         Book book = new Book(id, bookName, author, genre);
@@ -54,31 +53,52 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<Book> getAll() {
-        return bookRepository.findAll();
+    public List<BookWithoutComments> findAll() {
+        return bookWithoutCommentsRepository.findAll();
     }
 
-    @Transactional(readOnly = true)
     @Override
     @SuppressWarnings("unused")
-    public Book getById(long id) {
-        Book book = bookRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Book", id)));
-        book.setComments(commentRepository.getCommentsByBookId(id));
-        return book;
+    public Book getById(String id) {
+        return bookRepository.findById(id).orElseThrow(null);
     }
 
-    @Transactional
     @Override
-    public void deleteById(long id) {
+    public void deleteById(String id) {
         bookRepository.deleteById(id);
     }
 
-    private Genre getGenre(long genreId) throws BookServiceException {
+    @Override
+    public void addComment(String bookId, Comment comment) {
+        Book book = bookRepository.findById(bookId).orElseThrow();
+        book.getComments().add(comment);
+        bookRepository.save(book);
+    }
+
+    @Override
+    public void deleteComment(String bookId, String commentId) {
+        Book book = bookRepository.findById(bookId).orElseThrow();
+        List<Comment> comments = book.getComments();
+        List<Comment> collect = comments.stream().filter(comment -> !comment.getId().equals(commentId)).toList();
+        book.setComments(collect);
+        bookRepository.save(book);
+    }
+
+    @Override
+    public void updateComment(String bookId, Comment newComment) {
+        Book book = bookRepository.findById(bookId).orElseThrow();
+        List<Comment> comments = book.getComments();
+        Comment matchedComment = comments.stream().filter(comment -> comment.getId().equals(newComment.getId()))
+                .findFirst().orElseThrow();
+        matchedComment.setText(newComment.getText());
+        bookRepository.save(book);
+    }
+
+    private Genre getGenre(String genreId) throws BookServiceException {
         return genreRepository.findById(genreId).orElseThrow(() -> new BookServiceException("Genre not found"));
     }
 
-    private Author getAuthor(long authorId) throws BookServiceException {
+    private Author getAuthor(String authorId) throws BookServiceException {
         return authorRepository.findById(authorId).orElseThrow(() -> new BookServiceException("Author not found"));
     }
 

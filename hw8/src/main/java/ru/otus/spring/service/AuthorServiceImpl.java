@@ -1,35 +1,32 @@
 package ru.otus.spring.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import ru.otus.spring.domain.Book;
+import ru.otus.spring.exceptions.DeletedAuthorHasBooksException;
 import ru.otus.spring.repository.AuthorRepository;
 import ru.otus.spring.domain.Author;
+import ru.otus.spring.repository.BookRepository;
 
 import java.util.List;
 
-import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
-
 @Component
 @SuppressWarnings("unused")
+@RequiredArgsConstructor
 public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository repository;
 
-    public AuthorServiceImpl(AuthorRepository repository) {
-        this.repository = repository;
-    }
+    private final BookRepository bookRepository;
 
-    @Transactional
     @Override
     public Author save(Author author) {
         return repository.save(author);
     }
 
     @Override
-    public Author getById(long id) {
-        return repository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Author", id)));
+    public Author getById(String id) {
+        return repository.findById(id).orElseThrow(null);
     }
 
     @Override
@@ -37,9 +34,12 @@ public class AuthorServiceImpl implements AuthorService {
         return repository.findAll();
     }
 
-    @Transactional
     @Override
-    public void deleteById(long id) {
+    public void deleteById(String id) throws DeletedAuthorHasBooksException {
+        List<Book> books = bookRepository.findByAuthorId(id);
+        if (!books.isEmpty()) {
+            throw new DeletedAuthorHasBooksException();
+        }
         repository.deleteById(id);
     }
 

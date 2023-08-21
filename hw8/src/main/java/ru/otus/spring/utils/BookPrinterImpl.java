@@ -2,13 +2,17 @@ package ru.otus.spring.utils;
 
 import org.springframework.stereotype.Component;
 import ru.otus.spring.domain.Book;
+import ru.otus.spring.domain.BookWithoutComments;
 import ru.otus.spring.service.OutputService;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Component
 @SuppressWarnings("unused")
 public class BookPrinterImpl implements BookPrinter {
+
+    public static final String BOOK_PRINT_FORMAT = "id: %s, name: %s, author: %s, genre: %s";
 
     private final OutputService outputService;
 
@@ -21,7 +25,7 @@ public class BookPrinterImpl implements BookPrinter {
 
     @Override
     public void printWithComments(Book book) {
-        String format = String.format("id: %s, name: %s, author: %s, genre: %s",
+        String format = String.format(BOOK_PRINT_FORMAT,
                 book.getId(), book.getName(), book.getAuthor().getName(), book.getGenre().getName());
         outputService.outputString(format);
         commentPrinter.print(book.getComments());
@@ -29,7 +33,14 @@ public class BookPrinterImpl implements BookPrinter {
 
     @Override
     public void print(Book book) {
-        String format = String.format("id: %s, name: %s, author: %s, genre: %s",
+        String format = String.format(BOOK_PRINT_FORMAT,
+                book.getId(), book.getName(), book.getAuthor().getName(), book.getGenre().getName());
+        outputService.outputString(format);
+    }
+
+    @Override
+    public void print(BookWithoutComments book) {
+        String format = String.format(BOOK_PRINT_FORMAT,
                 book.getId(), book.getName(), book.getAuthor().getName(), book.getGenre().getName());
         outputService.outputString(format);
     }
@@ -42,7 +53,15 @@ public class BookPrinterImpl implements BookPrinter {
 
     @Override
     public void print(List<Book> books) {
-        books.sort((b1, b2) -> b1.getId() > b2.getId() ? 1 : -1);
+        books.sort(Comparator.comparing(Book::getName));
+        for (var book : books) {
+            print(book);
+        }
+    }
+
+    @Override
+    public void printWithoutComments(List<BookWithoutComments> books) {
+        books.sort(Comparator.comparing(BookWithoutComments::getName));
         for (var book : books) {
             print(book);
         }

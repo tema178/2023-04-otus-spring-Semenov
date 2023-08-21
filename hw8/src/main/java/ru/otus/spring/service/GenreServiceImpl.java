@@ -1,35 +1,33 @@
 package ru.otus.spring.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import ru.otus.spring.domain.Book;
+import ru.otus.spring.exceptions.DeletedGenreHasBooksException;
+import ru.otus.spring.repository.BookRepository;
 import ru.otus.spring.repository.GenreRepository;
 import ru.otus.spring.domain.Genre;
 
 import java.util.List;
 
-import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
 
 @Component
 @SuppressWarnings("unused")
+@RequiredArgsConstructor
 public class GenreServiceImpl implements GenreService {
 
     private final GenreRepository repository;
 
-    public GenreServiceImpl(GenreRepository repository) {
-        this.repository = repository;
-    }
+    private final BookRepository bookRepository;
 
-    @Transactional
     @Override
     public Genre save(Genre genre) {
         return repository.save(genre);
     }
 
     @Override
-    public Genre getById(long id) {
-        return repository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Genre", id)));
+    public Genre getById(String id) {
+        return repository.findById(id).orElseThrow(null);
     }
 
     @Override
@@ -37,9 +35,12 @@ public class GenreServiceImpl implements GenreService {
         return repository.findAll();
     }
 
-    @Transactional
     @Override
-    public void deleteById(long id) {
+    public void deleteById(String id) throws DeletedGenreHasBooksException {
+        List<Book> books = bookRepository.findByGenreId(id);
+        if (!books.isEmpty()) {
+            throw new DeletedGenreHasBooksException();
+        }
         repository.deleteById(id);
     }
 
