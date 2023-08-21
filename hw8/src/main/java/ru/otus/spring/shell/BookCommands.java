@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import ru.otus.spring.domain.Book;
+import ru.otus.spring.domain.BookWithComments;
 import ru.otus.spring.exceptions.BookServiceException;
 import ru.otus.spring.service.BookService;
 import ru.otus.spring.utils.BookPrinter;
@@ -23,7 +24,7 @@ public class BookCommands {
 
     @ShellMethod(value = "Show all books", key = {"allBooks"})
     public void all() {
-        bookPrinter.printWithoutComments(bookService.findAll());
+        bookPrinter.print(bookService.findAll());
     }
 
     @ShellMethod(value = "Create new book", key = {"createBook"})
@@ -46,8 +47,8 @@ public class BookCommands {
 
     @ShellMethod(value = "Get book by id", key = {"getBook"})
     public void get(String id) {
-        Book book = bookService.getById(id);
-        bookPrinter.printWithComments(book);
+        BookWithComments book = bookService.getById(id);
+        bookPrinter.print(book);
     }
 
     @ShellMethod(value = "Delete book", key = {"deleteBook"})

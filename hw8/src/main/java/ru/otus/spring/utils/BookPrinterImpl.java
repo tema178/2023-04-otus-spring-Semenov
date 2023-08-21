@@ -2,7 +2,7 @@ package ru.otus.spring.utils;
 
 import org.springframework.stereotype.Component;
 import ru.otus.spring.domain.Book;
-import ru.otus.spring.domain.BookWithoutComments;
+import ru.otus.spring.domain.BookWithComments;
 import ru.otus.spring.service.OutputService;
 
 import java.util.Comparator;
@@ -24,7 +24,7 @@ public class BookPrinterImpl implements BookPrinter {
     }
 
     @Override
-    public void printWithComments(Book book) {
+    public void print(BookWithComments book) {
         String format = String.format(BOOK_PRINT_FORMAT,
                 book.getId(), book.getName(), book.getAuthor().getName(), book.getGenre().getName());
         outputService.outputString(format);
@@ -39,13 +39,6 @@ public class BookPrinterImpl implements BookPrinter {
     }
 
     @Override
-    public void print(BookWithoutComments book) {
-        String format = String.format(BOOK_PRINT_FORMAT,
-                book.getId(), book.getName(), book.getAuthor().getName(), book.getGenre().getName());
-        outputService.outputString(format);
-    }
-
-    @Override
     public void print(String prefix, Book book) {
         outputService.outputString(prefix);
         print(book);
@@ -54,14 +47,6 @@ public class BookPrinterImpl implements BookPrinter {
     @Override
     public void print(List<Book> books) {
         books.sort(Comparator.comparing(Book::getName));
-        for (var book : books) {
-            print(book);
-        }
-    }
-
-    @Override
-    public void printWithoutComments(List<BookWithoutComments> books) {
-        books.sort(Comparator.comparing(BookWithoutComments::getName));
         for (var book : books) {
             print(book);
         }

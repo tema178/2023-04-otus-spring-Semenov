@@ -1,5 +1,6 @@
 package ru.otus.spring.service;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,10 +8,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
-import ru.otus.spring.domain.BookWithoutComments;
+import ru.otus.spring.domain.BookWithComments;
+import ru.otus.spring.domain.Comment;
 import ru.otus.spring.repository.AuthorRepository;
 import ru.otus.spring.repository.BookRepository;
-import ru.otus.spring.repository.BookWithoutCommentsRepository;
+import ru.otus.spring.repository.BookWithCommentsRepository;
 import ru.otus.spring.repository.GenreRepository;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
@@ -60,15 +62,16 @@ class BookServiceImplTest {
     private static final Book FIRST_BOOK_FULL = new Book(FIRST_BOOK_ID, FIRST_BOOK_NAME,
             AUTHOR_IVAN_FULL, ACTION_GENRE_FULL);
 
-    private static final BookWithoutComments FIRST_BOOK_FULL_WITHOUT_COMMENTS = new BookWithoutComments(FIRST_BOOK_ID,
-            FIRST_BOOK_NAME, AUTHOR_IVAN_FULL, ACTION_GENRE_FULL);
+    private static final BookWithComments FIRST_BOOK_FULL_WITH_COMMENTS = new BookWithComments(FIRST_BOOK_ID,
+            FIRST_BOOK_NAME, AUTHOR_IVAN_FULL, ACTION_GENRE_FULL,
+            List.of(new Comment(ObjectId.get().toString(), "Comment 1")));
 
 
     private static final String SECOND_BOOK_ID = "2";
 
     private static final String SECOND_BOOK_NAME = "Book of Nikolay";
 
-    private static final BookWithoutComments SECOND_BOOK_FULL_WITHOUT_COMMENTS = new BookWithoutComments(SECOND_BOOK_ID,
+    private static final Book SECOND_BOOK_FULL = new Book(SECOND_BOOK_ID,
             SECOND_BOOK_NAME, AUTHOR_NIKOLAY_FULL, ACTION_GENRE_FULL);
 
     private static final int EXPECTED_LIBRARY_SIZE = 2;
@@ -83,7 +86,7 @@ class BookServiceImplTest {
 
     @MockBean
     @SuppressWarnings("unused")
-    private BookWithoutCommentsRepository bookWithoutCommentsRepository;
+    private BookWithCommentsRepository bookWithCommentsRepository;
 
     @MockBean
     @SuppressWarnings("unused")
@@ -109,8 +112,9 @@ class BookServiceImplTest {
     @DisplayName("Получить книгу по id")
     @Test
     void shouldGetBookById() {
-        given(bookRepository.findById(FIRST_BOOK_ID)).willReturn(Optional.of(FIRST_BOOK_FULL));
-        Book book = bookService.getById(FIRST_BOOK_ID);
+        given(bookWithCommentsRepository.findById(FIRST_BOOK_ID))
+                .willReturn(Optional.of(FIRST_BOOK_FULL_WITH_COMMENTS));
+        BookWithComments book = bookService.getById(FIRST_BOOK_ID);
         assertThat(book.getName()).isEqualTo(FIRST_BOOK_FULL.getName());
         assertThat(book.getAuthor()).isEqualTo(FIRST_BOOK_FULL.getAuthor());
         assertThat(book.getGenre()).isEqualTo(FIRST_BOOK_FULL.getGenre());
@@ -119,10 +123,10 @@ class BookServiceImplTest {
     @DisplayName("Получить все книги")
     @Test
     void shouldGetBooks() {
-        given(bookWithoutCommentsRepository.findAll()).willReturn(
-                List.of(FIRST_BOOK_FULL_WITHOUT_COMMENTS, SECOND_BOOK_FULL_WITHOUT_COMMENTS));
-        List<BookWithoutComments> book = bookService.findAll();
+        given(bookRepository.findAll()).willReturn(
+                List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
+        List<Book> book = bookService.findAll();
         assertThat(book).hasSize(EXPECTED_LIBRARY_SIZE).isEqualTo(
-                List.of(FIRST_BOOK_FULL_WITHOUT_COMMENTS, SECOND_BOOK_FULL_WITHOUT_COMMENTS));
+                List.of(FIRST_BOOK_FULL, SECOND_BOOK_FULL));
     }
 }

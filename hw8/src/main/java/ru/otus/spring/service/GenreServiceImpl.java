@@ -27,7 +27,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public Genre getById(String id) {
-        return repository.findById(id).orElseThrow(null);
+        return repository.findById(id).orElseThrow();
     }
 
     @Override

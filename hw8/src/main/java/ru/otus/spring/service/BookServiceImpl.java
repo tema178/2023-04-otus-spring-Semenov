@@ -1,11 +1,11 @@
 package ru.otus.spring.service;
 
 import org.springframework.stereotype.Component;
-import ru.otus.spring.domain.BookWithoutComments;
+import ru.otus.spring.domain.BookWithComments;
 import ru.otus.spring.domain.Comment;
 import ru.otus.spring.repository.AuthorRepository;
 import ru.otus.spring.repository.BookRepository;
-import ru.otus.spring.repository.BookWithoutCommentsRepository;
+import ru.otus.spring.repository.BookWithCommentsRepository;
 import ru.otus.spring.repository.GenreRepository;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
@@ -24,16 +24,16 @@ public class BookServiceImpl implements BookService {
 
     private final GenreRepository genreRepository;
 
-    private final BookWithoutCommentsRepository bookWithoutCommentsRepository;
+    private final BookWithCommentsRepository bookWithCommentsRepository;
 
 
     public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository,
                            GenreRepository genreRepository,
-                           BookWithoutCommentsRepository bookWithoutCommentsRepository) {
+                           BookWithCommentsRepository bookWithCommentsRepository) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
-        this.bookWithoutCommentsRepository = bookWithoutCommentsRepository;
+        this.bookWithCommentsRepository = bookWithCommentsRepository;
     }
 
     @Override
@@ -53,14 +53,14 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookWithoutComments> findAll() {
-        return bookWithoutCommentsRepository.findAll();
+    public List<Book> findAll() {
+        return bookRepository.findAll();
     }
 
     @Override
     @SuppressWarnings("unused")
-    public Book getById(String id) {
-        return bookRepository.findById(id).orElseThrow(null);
+    public BookWithComments getById(String id) {
+        return bookWithCommentsRepository.findById(id).orElseThrow();
     }
 
     @Override
@@ -70,28 +70,28 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void addComment(String bookId, Comment comment) {
-        Book book = bookRepository.findById(bookId).orElseThrow();
+        BookWithComments book = bookWithCommentsRepository.findById(bookId).orElseThrow();
         book.getComments().add(comment);
-        bookRepository.save(book);
+        bookWithCommentsRepository.save(book);
     }
 
     @Override
     public void deleteComment(String bookId, String commentId) {
-        Book book = bookRepository.findById(bookId).orElseThrow();
+        BookWithComments book = bookWithCommentsRepository.findById(bookId).orElseThrow();
         List<Comment> comments = book.getComments();
         List<Comment> collect = comments.stream().filter(comment -> !comment.getId().equals(commentId)).toList();
         book.setComments(collect);
-        bookRepository.save(book);
+        bookWithCommentsRepository.save(book);
     }
 
     @Override
     public void updateComment(String bookId, Comment newComment) {
-        Book book = bookRepository.findById(bookId).orElseThrow();
+        BookWithComments book = bookWithCommentsRepository.findById(bookId).orElseThrow();
         List<Comment> comments = book.getComments();
         Comment matchedComment = comments.stream().filter(comment -> comment.getId().equals(newComment.getId()))
                 .findFirst().orElseThrow();
         matchedComment.setText(newComment.getText());
-        bookRepository.save(book);
+        bookWithCommentsRepository.save(book);
     }
 
     private Genre getGenre(String genreId) throws BookServiceException {

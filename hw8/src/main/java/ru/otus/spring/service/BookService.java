@@ -1,7 +1,7 @@
 package ru.otus.spring.service;
 
 import ru.otus.spring.domain.Book;
-import ru.otus.spring.domain.BookWithoutComments;
+import ru.otus.spring.domain.BookWithComments;
 import ru.otus.spring.domain.Comment;
 import ru.otus.spring.exceptions.BookServiceException;
 
@@ -12,9 +12,9 @@ public interface BookService {
 
     void update(String id, String bookName, String authorId, String genreId) throws BookServiceException;
 
-    List<BookWithoutComments> findAll();
+    List<Book> findAll();
 
-    Book getById(String id);
+    BookWithComments getById(String id);
 
     void deleteById(String id);
 
