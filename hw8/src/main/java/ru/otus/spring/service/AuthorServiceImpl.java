@@ -2,8 +2,8 @@ package ru.otus.spring.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.otus.spring.domain.Book;
 import ru.otus.spring.exceptions.DeletedAuthorHasBooksException;
+import ru.otus.spring.exceptions.EntityNotFoundException;
 import ru.otus.spring.repository.AuthorRepository;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.repository.BookRepository;
@@ -26,7 +26,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public Author getById(String id) {
-        return repository.findById(id).orElseThrow();
+        return repository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
@@ -36,8 +36,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void deleteById(String id) throws DeletedAuthorHasBooksException {
-        List<Book> books = bookRepository.findByAuthorId(id);
-        if (!books.isEmpty()) {
+        if (bookRepository.existsByAuthorId(id)) {
             throw new DeletedAuthorHasBooksException();
         }
         repository.deleteById(id);

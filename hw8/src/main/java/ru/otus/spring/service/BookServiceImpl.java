@@ -3,6 +3,7 @@ package ru.otus.spring.service;
 import org.springframework.stereotype.Component;
 import ru.otus.spring.domain.BookWithComments;
 import ru.otus.spring.domain.Comment;
+import ru.otus.spring.exceptions.EntityNotFoundException;
 import ru.otus.spring.repository.AuthorRepository;
 import ru.otus.spring.repository.BookRepository;
 import ru.otus.spring.repository.BookWithCommentsRepository;
@@ -60,7 +61,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @SuppressWarnings("unused")
     public BookWithComments getById(String id) {
-        return bookWithCommentsRepository.findById(id).orElseThrow();
+        return bookWithCommentsRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
@@ -70,28 +71,17 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void addComment(String bookId, Comment comment) {
-        BookWithComments book = bookWithCommentsRepository.findById(bookId).orElseThrow();
-        book.getComments().add(comment);
-        bookWithCommentsRepository.save(book);
+        bookWithCommentsRepository.addCommentToBook(bookId, comment);
     }
 
     @Override
     public void deleteComment(String bookId, String commentId) {
-        BookWithComments book = bookWithCommentsRepository.findById(bookId).orElseThrow();
-        List<Comment> comments = book.getComments();
-        List<Comment> collect = comments.stream().filter(comment -> !comment.getId().equals(commentId)).toList();
-        book.setComments(collect);
-        bookWithCommentsRepository.save(book);
+        bookWithCommentsRepository.deleteCommentFromBook(bookId, commentId);
     }
 
     @Override
     public void updateComment(String bookId, Comment newComment) {
-        BookWithComments book = bookWithCommentsRepository.findById(bookId).orElseThrow();
-        List<Comment> comments = book.getComments();
-        Comment matchedComment = comments.stream().filter(comment -> comment.getId().equals(newComment.getId()))
-                .findFirst().orElseThrow();
-        matchedComment.setText(newComment.getText());
-        bookWithCommentsRepository.save(book);
+        bookWithCommentsRepository.updateCommentToBook(bookId, newComment);
     }
 
     private Genre getGenre(String genreId) throws BookServiceException {

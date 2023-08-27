@@ -5,11 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.events.AuthorUpdateEventListener;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataMongoTest
 @Import(AuthorUpdateEventListener.class)
@@ -18,7 +20,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 class AuthorRepositoryWithListenerTest {
 
     @Autowired
-    private BookRepository bookRepository;
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private AuthorRepository authorRepository;
@@ -26,10 +28,12 @@ class AuthorRepositoryWithListenerTest {
     @Test
     @DisplayName("Обновлять автора в книгах после обновления имени автора")
     void shouldUpdateAuthorInfoInBooksAfterAuthorUpdate() {
-        Book book = bookRepository.findById("1").orElseThrow();
+        Book book = mongoTemplate.findById("64eb3b278b24173141bc2615", Book.class);
+        assertNotNull(book);
         assertThat(book.getAuthor().getName()).isEqualTo("Ivan");
-        authorRepository.save(new Author("2", "Ivan Vasilievich"));
-        book = bookRepository.findById("1").orElseThrow();
+        authorRepository.save(new Author("64eb3b278b24173141bc2612", "Ivan Vasilievich"));
+        book = mongoTemplate.findById("64eb3b278b24173141bc2615", Book.class);
+        assertNotNull(book);
         assertThat(book.getAuthor().getName()).isEqualTo("Ivan Vasilievich");
     }
 }

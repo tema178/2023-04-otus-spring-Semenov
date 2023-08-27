@@ -10,6 +10,7 @@ import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.BookWithComments;
 import ru.otus.spring.domain.Comment;
 import ru.otus.spring.domain.Genre;
+import ru.otus.spring.exceptions.EntityNotFoundException;
 import ru.otus.spring.repository.AuthorRepository;
 import ru.otus.spring.repository.BookWithCommentsRepository;
 import ru.otus.spring.repository.GenreRepository;
@@ -57,8 +58,8 @@ public class DatabaseChangelog {
     @ChangeSet(order = "004", id = "insertBook", author = "Tema")
     public void insertBook(BookWithCommentsRepository bookRepository, AuthorRepository authorRepository,
                            GenreRepository genreRepository) {
-        Author author = authorRepository.findById(ivanId.toString()).orElseThrow();
-        Genre genre = genreRepository.findById(actionId.toString()).orElseThrow();
+        Author author = authorRepository.findById(ivanId.toString()).orElseThrow(EntityNotFoundException::new);
+        Genre genre = genreRepository.findById(actionId.toString()).orElseThrow(EntityNotFoundException::new);
         BookWithComments book = new BookWithComments("Book of Ivan 1", author, genre,
                 List.of(new Comment(ObjectId.get().toString(), "Comment 1")));
         bookRepository.save(book);
