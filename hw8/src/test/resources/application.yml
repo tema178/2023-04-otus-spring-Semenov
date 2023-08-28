@@ -4,6 +4,13 @@ spring:
       port: 0
       database: test
 
+  shell:
+    interactive:
+      enabled: false
+    command:
+      version:
+        enabled: false
+
 de:
   flapdoodle:
     mongodb:
