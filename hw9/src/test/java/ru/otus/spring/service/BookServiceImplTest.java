@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @DisplayName("Сервис для работы с книгами должен")
-@SpringBootTest(properties = {"spring.shell.interactive.enabled=false"})
+@SpringBootTest()
 @Import({BookServiceImpl.class})
 class BookServiceImplTest {
 
@@ -91,7 +91,8 @@ class BookServiceImplTest {
         given(bookRepository.save(any())).willReturn(BOOK_FULL);
         given(authorRepository.findById(IVAN_ID)).willReturn(Optional.of(AUTHOR_IVAN_FULL));
         given(genreRepository.findById(ACTION_GENRE_ID)).willReturn(Optional.of(ACTION_GENRE_FULL));
-        Book result = bookService.create(TEST_BOOK_NAME, IVAN_ID, ACTION_GENRE_ID);
+        Book result = bookService.save(new Book(TEST_BOOK_NAME, new Author(IVAN_ID, null),
+                new Genre(ACTION_GENRE_ID, null)));
         assertThat(result.getName()).isEqualTo(BOOK.getName());
         assertThat(result.getAuthor()).isEqualTo(BOOK_FULL.getAuthor());
         assertThat(result.getGenre()).isEqualTo(BOOK_FULL.getGenre());

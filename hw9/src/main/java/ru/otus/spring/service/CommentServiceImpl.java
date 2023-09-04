@@ -6,10 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.repository.CommentRepository;
 import ru.otus.spring.domain.Comment;
 
-import java.util.List;
-
-import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
-
 @Component
 @SuppressWarnings("unused")
 public class CommentServiceImpl implements CommentService {
@@ -27,17 +23,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<Comment> getAllCommentsForBook(long bookId) {
-        return repository.getCommentsByBookId(bookId);
-    }
-
-    @Transactional
-    @Override
-    public void update(long id, String comment) {
-        Comment original = repository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Author", id)));
-        original.setBody(comment);
-        repository.save(original);
+    public Comment findById(long id) {
+        return repository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @Transactional

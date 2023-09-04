@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 @Entity
 @Table(name = "books")
 @NamedEntityGraph(name = "books-authors-genres-entity-graph",
@@ -61,9 +63,4 @@ public class Book {
         this.genre = genre;
         this.comments = Collections.emptyList();
     }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
 }

@@ -6,9 +6,7 @@ import ru.otus.spring.exceptions.BookServiceException;
 import java.util.List;
 
 public interface BookService {
-    Book create(String bookName, long authorId, long genreId) throws BookServiceException;
-
-    void update(long id, String bookName, long authorId, long genreId) throws BookServiceException;
+    Book save(Book book) throws BookServiceException;
 
     List<Book> getAll();
 

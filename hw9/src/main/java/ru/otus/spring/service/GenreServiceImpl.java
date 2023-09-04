@@ -8,8 +8,6 @@ import ru.otus.spring.domain.Genre;
 
 import java.util.List;
 
-import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
-
 @Component
 @SuppressWarnings("unused")
 public class GenreServiceImpl implements GenreService {
@@ -28,8 +26,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public Genre getById(long id) {
-        return repository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Genre", id)));
+        return repository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override

@@ -8,8 +8,6 @@ import ru.otus.spring.domain.Author;
 
 import java.util.List;
 
-import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
-
 @Component
 @SuppressWarnings("unused")
 public class AuthorServiceImpl implements AuthorService {
@@ -28,8 +26,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public Author getById(long id) {
-        return repository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Author", id)));
+        return repository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override

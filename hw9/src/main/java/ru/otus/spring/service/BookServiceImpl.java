@@ -1,6 +1,7 @@
 package ru.otus.spring.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.repository.AuthorRepository;
@@ -13,8 +14,6 @@ import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exceptions.BookServiceException;
 
 import java.util.List;
-
-import static ru.otus.spring.exceptions.ExceptionUtil.entityNotFoundExceptionMessageFormat;
 
 @Component
 public class BookServiceImpl implements BookService {
@@ -37,20 +36,10 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public Book create(String bookName, long authorId, long genreId) throws BookServiceException {
-        Author author = getAuthor(authorId);
-        Genre genre = getGenre(genreId);
-        Book book = new Book(bookName, author, genre);
+    public Book save(Book book) throws BookServiceException {
+        book.setAuthor(getAuthor(book));
+        book.setGenre(getGenre(book));
         return bookRepository.save(book);
-    }
-
-    @Transactional
-    @Override
-    public void update(long id, String bookName, long authorId, long genreId) throws BookServiceException {
-        Author author = getAuthor(authorId);
-        Genre genre = getGenre(genreId);
-        Book book = new Book(id, bookName, author, genre);
-        bookRepository.save(book);
     }
 
     @Override
@@ -62,8 +51,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @SuppressWarnings("unused")
     public Book getById(long id) {
-        Book book = bookRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(entityNotFoundExceptionMessageFormat("Book", id)));
+        Book book = bookRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         book.setComments(commentRepository.getCommentsByBookId(id));
         return book;
     }
@@ -74,12 +62,20 @@ public class BookServiceImpl implements BookService {
         bookRepository.deleteById(id);
     }
 
-    private Genre getGenre(long genreId) throws BookServiceException {
-        return genreRepository.findById(genreId).orElseThrow(() -> new BookServiceException("Genre not found"));
+    private Genre getGenre(@NonNull Book book) throws BookServiceException {
+        if (book.getGenre() == null) {
+            throw new BookServiceException("Genre not found");
+        }
+        return genreRepository.findById(book.getGenre().getId()).
+                orElseThrow(() -> new BookServiceException("Genre not found"));
     }
 
-    private Author getAuthor(long authorId) throws BookServiceException {
-        return authorRepository.findById(authorId).orElseThrow(() -> new BookServiceException("Author not found"));
+    private Author getAuthor(@NonNull Book book) throws BookServiceException {
+        if (book.getAuthor() == null) {
+            throw new BookServiceException("Author not found");
+        }
+        return authorRepository.findById(book.getAuthor().getId())
+                .orElseThrow(() -> new BookServiceException("Author not found"));
     }
 
 }
