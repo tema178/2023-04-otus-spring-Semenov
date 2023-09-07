@@ -22,7 +22,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 
-@WebMvcTest
+@WebMvcTest(BookController.class)
 class BookControllerTest {
 
     private static final long IVAN_ID = 1;
