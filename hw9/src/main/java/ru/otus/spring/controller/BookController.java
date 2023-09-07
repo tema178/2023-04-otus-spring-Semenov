@@ -25,7 +25,7 @@ public class BookController {
 
     private final GenreService genreService;
 
-    @GetMapping({"/", "book"})
+    @GetMapping({"/", "/book"})
     public String all(Model model) {
         List<Book> books = bookService.getAll();
         model.addAttribute("books", books);
@@ -47,7 +47,7 @@ public class BookController {
         return "redirect:/";
     }
 
-    @GetMapping("book/{id}")
+    @GetMapping("/book/{id}")
     public String get(@PathVariable("id") long id, Model model) {
         Book book = bookService.getById(id);
         model.addAttribute("book", book);
@@ -57,7 +57,7 @@ public class BookController {
         return "bookEdit";
     }
 
-    @PostMapping("book/{id}/delete")
+    @PostMapping("/book/{id}/delete")
     public String deleteBook(@PathVariable("id") long id) {
         bookService.deleteById(id);
         return "redirect:/";
