@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <title>Edit book</title>
@@ -36,26 +36,60 @@
             width: 50px;
         }
     </style>
+    <script src="/webjars/jquery/3.6.4/jquery.min.js"></script>
+    <script>
+        $(function () {
+            $.get('/api/comment/' + location.pathname.substr(location.pathname.lastIndexOf('/')+1)).done(function (comment) {
+                document.getElementById('id-input').value = comment.id
+                document.getElementById('body-input').value = comment.body
+                document.getElementById('book-id-input').value = comment.bookId
+                document.getElementById('cancel').href = '/book/' + comment.bookId
+                    });
+                }
+            )
+
+        function saveComment() {
+            const bodyInput = document.getElementById("body-input")
+            const idInput = document.getElementById("id-input")
+            const bookIdInput = document.getElementById("book-id-input")
+            const comment = {
+                id: idInput.value,
+                body: bodyInput.value,
+                bookId: bookIdInput.value
+                          }
+            fetch("/api/comment", {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(comment)})
+            .then(location.href = '/book/' + bookIdInput.value)
+        }
+    </script>
 </head>
 <body>
 
-<form id="edit-form" action="commentEdit.html" th:method="post" th:action="@{/comment(bookId=${comment.book.id})}"
-      th:object="${comment}">
+<form id="edit-form" action="commentEdit.html">
     <h3>Book Info:</h3>
 
     <div class="row">
         <label for="id-input">ID:</label>
-        <input id="id-input" type="text" readonly="readonly" value="1" th:field="*{id}"/>
+        <input id="id-input" type="text" readonly="readonly"/>
     </div>
 
     <div class="row">
         <label for="body-input">Name:</label>
-        <input id="body-input" name="name" type="text" value="John Doe" th:field="*{body}"/>
+        <input id="body-input" name="name" type="text"/>
     </div>
 
     <div class="row">
-        <button type="submit">Save</button>
-        <a href="bookList.html" th:href="@{/comment/{id}(id=*{book.id})}">
+        <input id="book-id-input" name="name" type="hidden"/>
+    </div>
+
+    <div class="row">
+        <button type="button" onclick="saveComment()">Save</button>
+        <a id="cancel">
             <button type="button">Cancel</button>
         </a>
     </div>

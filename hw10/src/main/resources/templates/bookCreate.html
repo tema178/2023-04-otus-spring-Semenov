@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <title>Edit book</title>
@@ -36,43 +36,74 @@
             width: 50px;
         }
     </style>
+
+    <script>
+        function saveBook() {
+            const nameInput = document.getElementById("book-name-input")
+            const authorsInput = document.getElementById("authors")
+            const genresInput = document.getElementById("genres")
+            const book = { name: nameInput.value,
+                           author: {id: authorsInput.value},
+                           genre: {id: genresInput.value}
+                          }
+            fetch("/api/book", {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(book)})
+            .then(location.href = '/')
+        }
+    </script>
+    <script src="/webjars/jquery/3.6.4/jquery.min.js"></script>
+    <script>
+        $(function () {
+            $.get('/api/author').done(function (authors) {
+                authors.forEach(function (author) {
+                    $(document.getElementById('authors')).append(`
+                    <option value="${author.id}">${author.name}</option>
+                    `)
+                });
+            })
+        });
+
+        $(function () {
+            $.get('/api/genre').done(function (genres) {
+                genres.forEach(function (genre) {
+                    $(document.getElementById('genres')).append(`
+                    <option value="${genre.id}">${genre.name}</option>
+                    `)
+                });
+            })
+        });
+    </script>
 </head>
 <body>
 
 <!-- book edition -->
-<form id="edit-form" action="bookEdit.html" th:method="post" th:action="@{/book}" th:object="${book}">
+<form id="edit-form" action="bookEdit.html">
     <h3>Book Info:</h3>
 
     <div class="row">
         <label for="book-name-input">Name:</label>
-        <input id="book-name-input" name="name" type="text" value="John Doe" th:field="*{name}"/>
+        <input id="book-name-input" name="name" type="text"/>
     </div>
 
-    <div><label id="authors">Authors:
-        <select name="authors" th:field="${book.author.id}">
-            <option th:each="author : ${authors}"
-                    th:text="${author.name}"
-                    th:value="${author.id}">Chekhov
-            </option>
-        </select>
+    <div><label for="authors">Authors:
+        <select id="authors" name="authors"></select>
     </label></div>
 
-    <div><label id="genres">Genres:
-        <select name="genres" th:field="${book.genre.id}">
-            <option th:each="genre : ${genres}"
-                    th:text="${genre.name}"
-                    th:value="${genre.id}">Action
-            </option>
-        </select>
+    <div><label for="genres">Genres:
+        <select id="genres" name="genres"></select>
     </label></div>
 
     <div class="row">
-        <button type="submit">Save</button>
-        <a href="bookList.html" th:href="@{/}">
+        <button type="button" onclick="saveBook()">Save</button>
+        <a href="/">
             <button type="button">Cancel</button>
         </a>
     </div>
 </form>
-
 </body>
 </html>

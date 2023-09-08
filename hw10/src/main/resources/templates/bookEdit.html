@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <title>Edit book</title>
@@ -36,39 +36,140 @@
             width: 50px;
         }
     </style>
+    <script src="/webjars/jquery/3.6.4/jquery.min.js"></script>
+    <script>
+        $(function () {
+            $.get('/api/book/' + location.pathname.substr(location.pathname.lastIndexOf('/')+1)).done(function (book) {
+                fillNameAndId(book.id, book.name)
+                fillAuthors(book.author.id)
+                fillGenres(book.genre.id)
+                fillComments(book.comments)
+                    });
+                }
+            )
+
+        function fillNameAndId(id, name) {
+            document.getElementById('id-input').value = id
+            document.getElementById('book-name-input').value = name
+        }
+
+        function fillAuthors(selectedAuthorId) {
+            $.get('/api/author').done(function (authors) {
+                authors.forEach(function (author) {
+                    if (author.id == selectedAuthorId) {
+                        $(document.getElementById('authors')).append(`
+                        <option value="${author.id}" selected=true>${author.name}</option>
+                    `)
+                    } else {
+                        $(document.getElementById('authors')).append(`
+                        <option value="${author.id}">${author.name}</option>
+                    `)
+                    }
+                });
+            })
+        }
+
+        function fillGenres(selectedGenreId) {
+            $.get('/api/genre').done(function (genres) {
+                genres.forEach(function (genre) {
+                if (genre.id == selectedGenreId) {
+                    $(document.getElementById('genres')).append(`
+                    <option value="${genre.id}" selected=true>${genre.name}</option>
+                    `)
+                } else {
+                    $(document.getElementById('genres')).append(`
+                    <option value="${genre.id}">${genre.name}</option>
+                    `)
+                    }
+                });
+            })
+        }
+
+        function fillComments(comments) {
+            comments.forEach(function (comment) {
+                $('tbody').append(`
+                    <tr>
+                        <td>${comment.body}</td>
+                        <td>
+                        <a href="/comment/${comment.id}">Edit</a>
+                        <form action="">
+                        <button type="button" onclick="deleteComment(${comment.id})">Delete</button>
+                        </form>
+                        </td>
+                    </tr>
+                `)
+            });
+        }
+
+        function deleteComment (id) {
+            fetch("/api/comment/" + id, {
+                method: 'DELETE',
+            })
+            .then(location.reload())
+        }
+
+        function saveComment() {
+            const bodyInput = document.getElementById("comment-input")
+            const bookIdInput = document.getElementById("id-input")
+            const comment = {
+                id: 0,
+                body: bodyInput.value,
+                bookId: bookIdInput.value
+                          }
+            fetch("/api/comment", {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(comment)})
+            .then(location.reload())
+        }
+
+        function saveBook() {
+            const idInput = document.getElementById("id-input")
+            const nameInput = document.getElementById("book-name-input")
+            const authorsInput = document.getElementById("authors")
+            const genresInput = document.getElementById("genres")
+            const book = {
+                            id: idInput.value,
+                            name: nameInput.value,
+                            author: {id: authorsInput.value},
+                            genre: {id: genresInput.value}
+                          }
+            fetch("/api/book", {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(book)})
+            .then(location.href = '/')
+        }
+    </script>
 </head>
 <body>
 
 <!-- book edition -->
-<form id="edit-form" action="bookEdit.html" th:method="post" th:action="@{/book}" th:object="${book}">
+<form id="edit-form" action="bookEdit.html">
     <h3>Book Info:</h3>
 
     <div class="row">
         <label for="id-input">ID:</label>
-        <input id="id-input" type="text" readonly="readonly" value="1" th:field="*{id}"/>
+        <input id="id-input" type="text" readonly="readonly" value="1"/>
     </div>
 
     <div class="row">
         <label for="book-name-input">Name:</label>
-        <input id="book-name-input" name="name" type="text" value="John Doe" th:field="*{name}"/>
+        <input id="book-name-input" name="name" type="text" value="John Doe"/>
     </div>
 
-    <div class="row"><label id="authors">Authors: <select name="authors" th:field="${book.author.id}">
-        <option th:each="author : ${authors}"
-                th:text="${author.name}"
-                th:value="${author.id}"
-                th:selected="${book.author.id == author.id}">Chekhov
-        </option>
-    </select>
+    <div><label for="authors">Authors:
+        <select id="authors" name="authors"></select>
     </label></div>
 
-    <div class="row"><label id="genres">Genres: <select name="genres" th:field="${book.genre.id}">
-        <option th:each="genre : ${genres}"
-                th:text="${genre.name}"
-                th:value="${genre.id}"
-                th:selected="${book.genre.id == genre.id}">Action
-        </option>
-    </select>
+    <div><label for="genres">Genres:
+        <select id="genres" name="genres"></select>
     </label></div>
 
     <h1></h1>
@@ -81,31 +182,22 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="comment : *{comments}">
-            <td th:text="${comment.body}">Interesting book</td>
-            <td>
-                <a href="commentEdit.html" th:href="@{/comment/{id}(id=${comment.id})}">Edit</a>
-                <form action="" th:method="post" th:action="@{/comment/{id}/delete(id=${comment.id})}">
-                    <button type="submit">Delete</button>
-                </form>
-            </td>
-        </tr>
         </tbody>
     </table>
 
     <div class="row">
-        <button type="submit">Save</button>
-        <a href="bookList.html" th:href="@{/}">
+        <button type="button" onclick="saveBook()">Save</button>
+        <a href="/">
             <button type="button">Cancel</button>
         </a>
     </div>
 </form>
 
-<form id="add-comment-form" action="bookEdit.html" th:method="post" th:action="@{/comment(bookId=${book.id})}">
+<form id="add-comment-form" action="">
     <div class="row">
-        <label for="comment-input">Add new comment:</label><input id="comment-input" type="text" value="1"
-                                                                  th:field="${commentCreate.body}"/>
-        <button type="submit">Save comment</button>
+        <label for="comment-input">Add new comment:</label>
+        <input id="comment-input" type="text"/>
+        <button type="button" onclick="saveComment()">Save comment</button>
     </div>
 </form>
 

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <title>List of all books</title>
+    <title>List of all persons</title>
     <style type="text/css">
         body {
             padding: 50px;
@@ -23,8 +23,63 @@
             width: 50px;
         }
     </style>
+    <script src="/webjars/jquery/3.6.4/jquery.min.js"></script>
+    <script>
+        $(function () {
+            $.get('/api/book').done(function (books) {
+                books.forEach(function (book) {
+                    $('tbody').append(`
+                        <tr>
+                            <td>${book.id}</td>
+                            <td>${book.name}</td>
+                            <td>${book.author.name}</td>
+                            <td>${book.genre.name}</td>
+                            <td>
+                            <a href="/book/${book.id}">Edit</a>
+                            <form action="">
+                            <button type="button" onclick="deleteBook(${book.id})">Delete</button>
+                            </form>
+                            </td>
+                        </tr>
+                    `)
+                });
+            })
+        });
+
+        function deleteBook (id) {
+            fetch("/api/book/" + id, {
+                method: 'DELETE',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                }
+            })
+            .then(location.reload())
+        }
+
+        function saveBook() {
+            const savedPersonContainer = document.getElementById("saved-person")
+            const nameInput = document.getElementById("book-name-input")
+            const authorsInput = document.getElementById("authors")
+            const genresInput = document.getElementById("genres")
+            const book = { name: nameInput.value,
+                           author: {id: authorsInput.value},
+                           genre: {id: genresInput.value}
+                          }
+            fetch("/api/book", {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(book)})
+            .then(rawResponse => rawResponse.json())
+            .then(json => savedPersonContainer.innerHTML = JSON.stringify(json, null, 4))
+        }
+    </script>
 </head>
 <body>
+
 <h3>books:</h3>
 
 <table class="books">
@@ -38,22 +93,10 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="book : ${books}">
-        <td th:text="${book.id}">1</td>
-        <td th:text="${book.name}">John Doe</td>
-        <td th:text="${book.author.name}">Ivan</td>
-        <td th:text="${book.genre.name}">Action</td>
-        <td>
-            <a href="edit.html" th:href="@{/book/{id}(id=${book.id})}">Edit</a>
-            <form action="" th:method="post" th:action="@{/book/{id}/delete(id=${book.id})}">
-                <button type="submit">Delete</button>
-            </form>
-        </td>
-    </tr>
     </tbody>
 </table>
 
-<a href="bookEdit.html" th:href="@{/book/edit}">
+<a href="/book/create">
     <button type="button">New Book</button>
 </a>
 
