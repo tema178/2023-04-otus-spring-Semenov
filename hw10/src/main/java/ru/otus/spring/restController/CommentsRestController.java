@@ -17,8 +17,8 @@ public class CommentsRestController {
     private final CommentService commentService;
 
     @PutMapping("/api/comment")
-    public void save(@RequestBody CommentDto comment) {
-        commentService.save(CommentDto.toDomainObject(comment));
+    public CommentDto save(@RequestBody CommentDto comment) {
+        return CommentDto.toDto(commentService.save(CommentDto.toDomainObject(comment)));
     }
 
     @GetMapping("/api/comment/{id}")

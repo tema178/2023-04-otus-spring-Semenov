@@ -1,11 +1,5 @@
 package ru.otus.spring.dto;
 
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.otus.spring.domain.Book;
@@ -13,7 +7,6 @@ import ru.otus.spring.domain.Comment;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor

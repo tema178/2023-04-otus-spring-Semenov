@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
-import ru.otus.spring.domain.Comment;
 import ru.otus.spring.domain.Genre;
 
-import java.util.Collections;
 import java.util.List;
 
 @Data

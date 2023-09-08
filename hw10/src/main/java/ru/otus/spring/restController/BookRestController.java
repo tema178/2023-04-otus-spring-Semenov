@@ -4,29 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.dto.BookDto;
 import ru.otus.spring.exceptions.BookServiceException;
-import ru.otus.spring.service.AuthorService;
 import ru.otus.spring.service.BookService;
-import ru.otus.spring.service.GenreService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
 public class BookRestController {
 
     private final BookService bookService;
-
-    private final AuthorService authorService;
-
-    private final GenreService genreService;
 
     @GetMapping({"/api/book"})
     public List<BookDto> all() {
@@ -35,8 +27,8 @@ public class BookRestController {
     }
 
     @PutMapping("/api/book")
-    public Book save(@RequestBody BookDto book) throws BookServiceException {
-        return bookService.save(book.toDomainObject());
+    public BookDto save(@RequestBody BookDto book) throws BookServiceException {
+        return BookDto.toDto(bookService.save(book.toDomainObject()));
     }
 
     @GetMapping("/api/book/{id}")
