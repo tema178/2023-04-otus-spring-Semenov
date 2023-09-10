@@ -71,28 +71,6 @@
     </select>
     </label></div>
 
-    <h1></h1>
-
-    <table class="comments">
-        <thead>
-        <tr>
-            <th>Comment</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="comment : *{comments}">
-            <td th:text="${comment.body}">Interesting book</td>
-            <td>
-                <a href="commentEdit.html" th:href="@{/comment/{id}(id=${comment.id})}">Edit</a>
-                <form action="" th:method="post" th:action="@{/comment/{id}/delete(id=${comment.id})}">
-                    <button type="submit">Delete</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-
     <div class="row">
         <button type="submit">Save</button>
         <a href="bookList.html" th:href="@{/}">
@@ -100,6 +78,28 @@
         </a>
     </div>
 </form>
+
+<h3>Comments info:</h3>
+
+<table class="comments">
+    <thead>
+    <tr>
+        <th>Comment</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="comment : ${book.comments}">
+        <td th:text="${comment.body}">Interesting book</td>
+        <td>
+            <a href="commentEdit.html" th:href="@{/comment/{id}(id=${comment.id})}">Edit</a>
+            <form action="" th:method="post" th:action="@{/comment/__${comment.id}__/delete}">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
 
 <form id="add-comment-form" action="bookEdit.html" th:method="post" th:action="@{/comment(bookId=${book.id})}">
     <div class="row">
