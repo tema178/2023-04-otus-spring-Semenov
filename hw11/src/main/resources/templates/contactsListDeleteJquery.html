@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <title>List of all persons</title>
+    <title>List of all contacts</title>
     <style type="text/css">
         body {
             padding: 50px;
@@ -23,28 +23,17 @@
             width: 50px;
         }
     </style>
-    <script src="/webjars/jquery/3.6.4/jquery.min.js"></script>
     <script>
-        $(function () {
-            $.get('/api/book').done(function (books) {
-                books.forEach(function (book) {
-                    $('tbody').append(`
-                        <tr>
-                            <td>${book.id}</td>
-                            <td>${book.name}</td>
-                            <td>${book.author.name}</td>
-                            <td>${book.genre.name}</td>
-                            <td>
-                            <a href="/book/${book.id}">Edit</a>
-                            <form action="">
-                            <button type="button" onclick="deleteBook(${book.id})">Delete</button>
-                            </form>
-                            </td>
-                        </tr>
-                    `)
-                });
+        async function loadContacts() {
+        var contactsPromise = await fetch("/api/contacts", {
+                method: 'GET',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                }
             })
-        });
+        contactsPromise.json().then(fillContactsTable)
+        };
 
         function deleteBook (id) {
             fetch("/api/book/" + id, {
@@ -56,6 +45,25 @@
             })
             .then(location.reload())
         }
+
+
+            function fillContactsTable(contacts) {
+                contacts.forEach(function (contact) {
+                    $('tbody').append(`
+                        <tr>
+                            <td>${contact.id}</td>
+                            <td>${contact.name}</td>
+                            <td>${contact.number}</td>
+                            <td>
+                            <a href="/contacts/${contact.id}">Edit</a>
+                            <form action="">
+                            <button type="button" onclick="deleteBook(${contact.id})">Delete</button>
+                            </form>
+                            </td>
+                        </tr>
+                    `)
+                });
+            }
 
         function saveBook() {
             const savedPersonContainer = document.getElementById("saved-person")
@@ -78,17 +86,16 @@
         }
     </script>
 </head>
-<body>
+<body onload="loadContacts()">
 
 <h3>books:</h3>
 
-<table class="books">
+<table class="contacts">
     <thead>
     <tr>
         <th>ID</th>
         <th>Name</th>
-        <th>Author</th>
-        <th>Genre</th>
+        <th>Number</th>
         <th>Action</th>
     </tr>
     </thead>

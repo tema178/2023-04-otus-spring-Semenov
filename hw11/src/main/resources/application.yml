@@ -1,26 +1,23 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:testdb
+  data:
+    mongodb:
+      port: 27017 #0 when flapdoodle using
+      database: library
+      authentication-database: admin
+      username: root
+      password: example
 
-  sql:
-    init:
-      mode: always
-  #      data-locations: data.sql
-  #      schema-locations: schema.sql
-  h2:
-    console:
-      path: /h2-console
-      settings:
-        web-allow-others: true
+#de:
+#  flapdoodle:
+#    mongodb:
+#      embedded:
+#        version: 4.0.2
 
-  jpa:
-    defer-datasource-initialization: true
-    generate-ddl: false
-    hibernate:
-      ddl-auto: none
-
-    show-sql: true
-
-  logging:
-    level:
-      ROOT: ERROR
+mongock:
+  runner-type: "InitializingBean"
+  change-logs-scan-package:
+    - ru.otus.spring.changelog
+  mongo-db:
+    write-concern:
+      journal: false
+    read-concern: local

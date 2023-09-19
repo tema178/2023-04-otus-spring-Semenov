@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all contacts</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        .books {
+            border: 1px solid steelblue;
+            width: 600px;
+            border-collapse: collapse;
+        }
+
+        .books tr td, th {
+            padding: 5px;
+            border: 1px solid steelblue;
+        }
+
+        .books td:last-child, td:first-child {
+            width: 50px;
+        }
+    </style>
+    <script src="/webjars/jquery/3.6.4/jquery.min.js"></script>
+    <script>
+        function loadContacts() {
+            $.get('/api/contact').done(function (contacts) {
+                $('tbody').empty()
+                contacts.forEach(function (contact) {
+                    $('tbody').append(`
+                        <tr>
+                            <td>${contact.name}</td>
+                            <td>${contact.phone}</td>
+                            <td>
+                            <a href="/contact/${contact.id}">Edit</a>
+                            <form action="">
+                            <button type="button" onclick="deleteContact('${contact.id}')">Delete</button>
+                            </form>
+                            </td>
+                        </tr>
+                    `)
+                });
+            })
+        };
+
+        function deleteContact (id) {
+            fetch("/api/contact/" + id, {
+                method: 'DELETE',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                }
+            })
+            .then(loadContacts())
+        }
+    </script>
+</head>
+<body onload="loadContacts()">
+
+<h3>Contacts:</h3>
+
+<table class="contacts">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<a href="/contact/create">
+    <button type="button">New contact</button>
+</a>
+
+</body>
+</html>
