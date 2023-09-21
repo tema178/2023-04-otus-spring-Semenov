@@ -1,5 +1,6 @@
 package ru.otus.spring.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,17 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.otus.spring.domain.Contact;
-import ru.otus.spring.repository.ContactFluxRepository;
+import ru.otus.spring.repository.ContactRepository;
 
 @RestController
+@RequiredArgsConstructor
 public class ContactRestController {
 
-    private final ContactFluxRepository repository;
-
-
-    public ContactRestController(ContactFluxRepository repository) {
-        this.repository = repository;
-    }
+    private final ContactRepository repository;
 
     @GetMapping("/api/contact")
     public Flux<Contact> getAll() {
