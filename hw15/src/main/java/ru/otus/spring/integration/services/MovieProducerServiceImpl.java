@@ -3,7 +3,7 @@ package ru.otus.spring.integration.services;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.stereotype.Service;
-import ru.otus.spring.integration.domain.Country;
+import ru.otus.spring.integration.domain.Genre;
 import ru.otus.spring.integration.domain.Movie;
 import ru.otus.spring.integration.domain.Review;
 
@@ -52,7 +52,7 @@ public class MovieProducerServiceImpl implements MovieProducerService {
 
     public Movie generateMovie() {
         return new Movie(titles[RandomUtils.nextInt(0, titles.length)],
-                Country.values()[RandomUtils.nextInt(0, Country.values().length)]);
+                Genre.values()[RandomUtils.nextInt(0, Genre.values().length)]);
     }
 
     private Collection<Movie> generateMovies() {

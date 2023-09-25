@@ -19,14 +19,18 @@ public class Review {
     @Digits(integer = 2, fraction = 1, message = "Rate could have only 1 digit after point")
     private final double rating;
 
-    private final boolean reviewerForKinopoisk;
+    private ReviewTag reviewTag;
+
+    public void setReviewTag(ReviewTag reviewTag) {
+        this.reviewTag = reviewTag;
+    }
 
     @Override
     public String toString() {
         return "Review{" +
                 "movie=" + movie.getName() +
                 ", rating=" + rating +
-                ", reviewerForKinopoisk=" + reviewerForKinopoisk +
+                ", reviewTag=" + reviewTag +
                 '}';
     }
 }

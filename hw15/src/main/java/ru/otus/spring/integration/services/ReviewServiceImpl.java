@@ -14,8 +14,7 @@ public class ReviewServiceImpl implements ReviewService {
         log.info("Start making review to {}", movie.getName());
         delay();
         log.info("Review to {} done", movie.getName());
-        return new Review(movie, Math.floor(RandomUtils.nextDouble(0, 10) * 10.0) / 10.0,
-                RandomUtils.nextBoolean());
+        return new Review(movie, Math.floor(RandomUtils.nextDouble(0, 10) * 10.0) / 10.0);
     }
 
     private static void delay() {

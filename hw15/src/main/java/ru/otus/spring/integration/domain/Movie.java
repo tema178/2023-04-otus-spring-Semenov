@@ -9,5 +9,5 @@ public class Movie {
 
     private final String name;
 
-    private final Country country;
+    private final Genre genre;
 }

@@ -2,7 +2,7 @@ package ru.otus.spring.integration.services;
 
 import ru.otus.spring.integration.domain.Review;
 
-public interface ReviewControlService {
+public interface AdditionInfoService {
 
-    Review controlReview(Review review);
+    Review addInfo(Review review);
 }

@@ -8,7 +8,7 @@ import org.springframework.integration.dsl.MessageChannels;
 import org.springframework.integration.dsl.PollerSpec;
 import org.springframework.integration.dsl.Pollers;
 import org.springframework.integration.scheduling.PollerMetadata;
-import ru.otus.spring.integration.services.ReviewControlService;
+import ru.otus.spring.integration.services.AdditionInfoService;
 import ru.otus.spring.integration.services.ReviewService;
 
 @Configuration
@@ -30,11 +30,11 @@ public class IntegrationConfig {
     }
 
     @Bean
-    public IntegrationFlow movieReviewFlow(ReviewService reviewService, ReviewControlService controlService) {
+    public IntegrationFlow movieReviewFlow(ReviewService reviewService, AdditionInfoService controlService) {
         return IntegrationFlow.from(movieChannel())
                 .split()
                 .handle(reviewService, "makeReview")
-                .transform(controlService, "controlReview")
+                .transform(controlService, "addInfo")
                 .aggregate()
                 .channel(reviewChannel())
                 .get();
