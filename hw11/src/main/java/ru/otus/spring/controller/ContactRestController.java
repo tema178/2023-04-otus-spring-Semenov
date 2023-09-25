@@ -36,7 +36,7 @@ public class ContactRestController {
     }
 
     @DeleteMapping("/api/contact/{id}")
-    public void delete(@PathVariable String id) {
-        repository.deleteById(id);
+    public Mono<Void> delete(@PathVariable String id) {
+        return repository.deleteById(id);
     }
 }

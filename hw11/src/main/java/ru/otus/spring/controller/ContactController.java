@@ -13,8 +13,13 @@ public class ContactController {
         return "contactList";
     }
 
-    @GetMapping({"/contact/{id}", "/contact/create"})
+    @GetMapping("/contact/{id}")
     public String contactEdit() {
         return "contactEdit";
+    }
+
+    @GetMapping("/contact/create")
+    public String contactCreate() {
+        return "contactCreate";
     }
 }
