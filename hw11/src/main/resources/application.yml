@@ -2,7 +2,7 @@ spring:
   data:
     mongodb:
       port: 27017 #0 when flapdoodle using
-      database: library
+      database: phoneBook
       authentication-database: admin
       username: root
       password: example
