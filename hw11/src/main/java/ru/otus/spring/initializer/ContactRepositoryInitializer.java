@@ -11,15 +11,12 @@ import org.reactivestreams.Publisher;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import ru.otus.spring.repository.ContactRepository;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class ContactRepositoryInitializer {
-
-    private final ContactRepository contactRepository;
 
     private final ReactiveMongoTemplate template;
 
