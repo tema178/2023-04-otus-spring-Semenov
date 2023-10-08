@@ -1,0 +1,23 @@
+spring:
+  data:
+    mongodb:
+      port: 27017 #0 when flapdoodle using
+      database: phoneBook
+      authentication-database: admin
+      username: root
+      password: example
+
+#de:
+#  flapdoodle:
+#    mongodb:
+#      embedded:
+#        version: 4.0.2
+
+mongock:
+  runner-type: "InitializingBean"
+  change-logs-scan-package:
+    - ru.otus.spring.changelog
+  mongo-db:
+    write-concern:
+      journal: false
+    read-concern: local
