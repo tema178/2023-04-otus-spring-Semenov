@@ -64,7 +64,7 @@
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(comment)})
-            .then(location.href = '/book/' + bookIdInput.value)
+            .then(res => location.href = '/book/' + bookIdInput.value)
         }
     </script>
 </head>

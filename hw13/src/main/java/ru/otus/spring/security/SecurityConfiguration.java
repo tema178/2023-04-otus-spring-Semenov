@@ -29,7 +29,13 @@ public class SecurityConfiguration {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.DELETE, "/api/book/**").authenticated()
+                        .requestMatchers("/api/book/**").authenticated()
+                        .requestMatchers("/api/comment/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/genre/**").authenticated()
+                        .requestMatchers("/api/genre/**").hasAuthority("ROLE_MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/api/author/**").authenticated()
+                        .requestMatchers("/api/author/**").hasAuthority("ROLE_MANAGER")
+                        .requestMatchers("/api/user/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractAuthenticationFilterConfigurer::permitAll);
@@ -65,9 +71,16 @@ public class SecurityConfiguration {
                 .password("$2a$10$am/tOvXSUuV6wgosthrFGO6n8caIgNobipmr0ZhJ3Xf3q1q5LDR42") // admin
                 .roles("ADMIN")
                 .build();
+        UserDetails manager = User
+                .builder()
+                .username("manager")
+                .password("$2a$10$am/tOvXSUuV6wgosthrFGO6n8caIgNobipmr0ZhJ3Xf3q1q5LDR42") // admin
+                .roles("MANAGER")
+                .build();
         JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(dataSource);
         userDetailsManager.createUser(user);
         userDetailsManager.createUser(admin);
+        userDetailsManager.createUser(manager);
         return userDetailsManager;
     }
 }

@@ -15,4 +15,8 @@ public class GenreDto {
     public static GenreDto toDto(Genre genre) {
         return new GenreDto(genre.getId(), genre.getName());
     }
+
+    public Genre toDomainObject(GenreDto genreDto) {
+        return new Genre(genreDto.getId(), genreDto.getName());
+    }
 }
