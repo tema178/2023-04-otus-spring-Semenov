@@ -14,6 +14,7 @@ import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Comment;
 import ru.otus.spring.dto.CommentDto;
 import ru.otus.spring.restController.CommentsRestController;
+import ru.otus.spring.security.SecurityConfiguration;
 import ru.otus.spring.service.CommentService;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -22,7 +23,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(CommentsRestController.class)
+@WebMvcTest({CommentsRestController.class, SecurityConfiguration.class})
 @WithMockUser(username = "admin")
 class CommentRestControllerTest {
 

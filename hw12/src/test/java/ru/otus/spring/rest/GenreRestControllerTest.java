@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.dto.GenreDto;
 import ru.otus.spring.restController.GenreRestController;
+import ru.otus.spring.security.SecurityConfiguration;
 import ru.otus.spring.service.GenreService;
 
 import java.util.List;
@@ -20,7 +21,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(GenreRestController.class)
+@WebMvcTest({GenreRestController.class, SecurityConfiguration.class})
 @WithMockUser(username = "admin")
 class GenreRestControllerTest {
 

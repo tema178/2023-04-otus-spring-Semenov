@@ -15,6 +15,7 @@ import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.dto.BookDto;
 import ru.otus.spring.restController.BookRestController;
+import ru.otus.spring.security.SecurityConfiguration;
 import ru.otus.spring.service.BookService;
 
 import java.util.List;
@@ -26,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(BookRestController.class)
+@WebMvcTest({BookRestController.class, SecurityConfiguration.class})
 @WithMockUser(username = "admin")
 class BookRestControllerTest {
 

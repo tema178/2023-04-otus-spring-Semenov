@@ -3,21 +3,21 @@ package ru.otus.spring.domain;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Collection;
 
 @Getter
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "users")
-public class User {
+public class User extends org.springframework.security.core.userdetails.User {
 
     @Id
     private String username;
 
-    private String password;
+    public User(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+        super(username, password, authorities);
+    }
 
-    private boolean enabled;
 }
