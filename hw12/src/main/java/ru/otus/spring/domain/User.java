@@ -24,7 +24,7 @@ public class User implements UserDetails {
 
     private boolean enabled;
 
-    @OneToMany(targetEntity = SimpleAuthority.class, fetch = FetchType.EAGER, mappedBy = "username")
+    @OneToMany(targetEntity = SimpleAuthority.class, fetch = FetchType.LAZY, mappedBy = "user")
     private List<SimpleAuthority> authorities;
 
     @Override

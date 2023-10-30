@@ -24,7 +24,7 @@ public class SimpleAuthority implements GrantedAuthority {
 
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "username")
-    private User username;
+    private User user;
 
     private String authority;
 
