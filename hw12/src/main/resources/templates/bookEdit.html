@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Edit book</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 150px;
+        }
+
+        input:read-only {
+            background: lightgray;
+        }
+
+        .row {
+            margin-top: 10px;
+        }
+
+        .comments {
+            border: 1px solid steelblue;
+            width: 600px;
+            border-collapse: collapse;
+        }
+
+        .comments tr td, th {
+            padding: 5px;
+            border: 1px solid steelblue;
+        }
+
+        .comments td:last-child, td:first-child {
+            width: 50px;
+        }
+    </style>
+    <script src="/webjars/jquery/3.6.4/jquery.min.js"></script>
+    <script>
+        $(function () {
+            $.get('/api/book/' + location.pathname.substr(location.pathname.lastIndexOf('/')+1)).done(function (book) {
+                fillNameAndId(book.id, book.name)
+                fillAuthors(book.author.id)
+                fillGenres(book.genre.id)
+                fillComments(book.comments)
+                    });
+                }
+            )
+
+        function fillNameAndId(id, name) {
+            document.getElementById('id-input').value = id
+            document.getElementById('book-name-input').value = name
+        }
+
+        function fillAuthors(selectedAuthorId) {
+            $.get('/api/author').done(function (authors) {
+                authors.forEach(function (author) {
+                    if (author.id == selectedAuthorId) {
+                        $(document.getElementById('authors')).append(`
+                        <option value="${author.id}" selected=true>${author.name}</option>
+                    `)
+                    } else {
+                        $(document.getElementById('authors')).append(`
+                        <option value="${author.id}">${author.name}</option>
+                    `)
+                    }
+                });
+            })
+        }
+
+        function fillGenres(selectedGenreId) {
+            $.get('/api/genre').done(function (genres) {
+                genres.forEach(function (genre) {
+                if (genre.id == selectedGenreId) {
+                    $(document.getElementById('genres')).append(`
+                    <option value="${genre.id}" selected=true>${genre.name}</option>
+                    `)
+                } else {
+                    $(document.getElementById('genres')).append(`
+                    <option value="${genre.id}">${genre.name}</option>
+                    `)
+                    }
+                });
+            })
+        }
+
+        function fillComments(comments) {
+            comments.forEach(function (comment) {
+                $('tbody').append(`
+                    <tr>
+                        <td>${comment.body}</td>
+                        <td>
+                        <a href="/comment/${comment.id}">Edit</a>
+                        <form action="">
+                        <button type="button" onclick="deleteComment(${comment.id})">Delete</button>
+                        </form>
+                        </td>
+                    </tr>
+                `)
+            });
+        }
+
+        function deleteComment (id) {
+            fetch("/api/comment/" + id, {
+                method: 'DELETE',
+            })
+            .then(res => location.reload())
+        }
+
+        function saveComment() {
+            const bodyInput = document.getElementById("comment-input")
+            const bookIdInput = document.getElementById("id-input")
+            const comment = {
+                id: 0,
+                body: bodyInput.value,
+                bookId: bookIdInput.value
+                          }
+            fetch("/api/comment", {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(comment)})
+            .then(res => location.reload())
+        }
+
+        function saveBook() {
+            const idInput = document.getElementById("id-input")
+            const nameInput = document.getElementById("book-name-input")
+            const authorsInput = document.getElementById("authors")
+            const genresInput = document.getElementById("genres")
+            const book = {
+                            id: idInput.value,
+                            name: nameInput.value,
+                            author: {id: authorsInput.value},
+                            genre: {id: genresInput.value}
+                          }
+            fetch("/api/book", {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(book)})
+            .then(res => location.href = '/')
+        }
+    </script>
+</head>
+<body>
+
+<!-- book edition -->
+<form id="edit-form" action="bookEdit.html">
+    <h3>Book Info:</h3>
+
+    <div class="row">
+        <label for="id-input">ID:</label>
+        <input id="id-input" type="text" readonly="readonly" value="1"/>
+    </div>
+
+    <div class="row">
+        <label for="book-name-input">Name:</label>
+        <input id="book-name-input" name="name" type="text" value="John Doe"/>
+    </div>
+
+    <div><label for="authors">Authors:
+        <select id="authors" name="authors"></select>
+    </label></div>
+
+    <div><label for="genres">Genres:
+        <select id="genres" name="genres"></select>
+    </label></div>
+
+    <h1></h1>
+
+    <table class="comments">
+        <thead>
+        <tr>
+            <th>Comment</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <div class="row">
+        <button type="button" onclick="saveBook()">Save</button>
+        <a href="/">
+            <button type="button">Cancel</button>
+        </a>
+    </div>
+</form>
+
+<form id="add-comment-form" action="">
+    <div class="row">
+        <label for="comment-input">Add new comment:</label>
+        <input id="comment-input" type="text"/>
+        <button type="button" onclick="saveComment()">Save comment</button>
+    </div>
+</form>
+
+</body>
+</html>
