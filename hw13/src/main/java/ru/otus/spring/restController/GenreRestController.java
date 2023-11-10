@@ -7,9 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Genre;
-import ru.otus.spring.dto.AuthorDto;
 import ru.otus.spring.dto.GenreDto;
 import ru.otus.spring.service.GenreService;
 
