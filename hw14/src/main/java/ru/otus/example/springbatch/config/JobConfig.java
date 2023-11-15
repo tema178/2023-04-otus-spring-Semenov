@@ -11,7 +11,6 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.core.step.tasklet.MethodInvokingTaskletAdapter;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -37,7 +36,6 @@ import ru.otus.example.springbatch.model.h2.AuthorDto;
 import ru.otus.example.springbatch.model.h2.BookDto;
 import ru.otus.example.springbatch.model.h2.CommentDto;
 import ru.otus.example.springbatch.model.h2.GenreDto;
-import ru.otus.example.springbatch.service.CleanUpService;
 import ru.otus.example.springbatch.service.TransformIdService;
 
 import javax.sql.DataSource;
@@ -58,7 +56,6 @@ public class JobConfig {
     @Autowired
     private PlatformTransactionManager platformTransactionManager;
 
-    @StepScope
     @Bean
     public MongoItemReader<BookWithComments> bookReader(MongoTemplate template) {
         return new MongoItemReaderBuilder<BookWithComments>()
@@ -75,8 +72,7 @@ public class JobConfig {
     public IteratorItemReader<CommentDto> commentReader(TransformIdService libraryIdService) {
         return new IteratorItemReader<>(libraryIdService.getComments());
     }
-
-    @StepScope
+    
     @Bean
     public MongoItemReader<Author> authorReader(MongoTemplate template) {
         return new MongoItemReaderBuilder<Author>()
@@ -88,7 +84,6 @@ public class JobConfig {
                 .build();
     }
 
-    @StepScope
     @Bean
     public MongoItemReader<Genre> genreReader(MongoTemplate template) {
         return new MongoItemReaderBuilder<Genre>()
@@ -100,25 +95,21 @@ public class JobConfig {
                 .build();
     }
 
-    @StepScope
     @Bean
     public ItemProcessor<BookWithComments, BookDto> bookProcessor(TransformIdService service) {
         return service::transform;
     }
 
-    @StepScope
     @Bean
     public ItemProcessor<Author, AuthorDto> authorProcessor(TransformIdService service) {
         return service::transform;
     }
 
-    @StepScope
     @Bean
     public ItemProcessor<Genre, GenreDto> genreProcessor(TransformIdService service) {
         return service::transform;
     }
 
-    @StepScope
     @Bean
     public JdbcBatchItemWriter<BookDto> writerBook(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<BookDto>()
@@ -128,7 +119,6 @@ public class JobConfig {
                 .build();
     }
 
-    @StepScope
     @Bean
     public JdbcBatchItemWriter<CommentDto> commentWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<CommentDto>()
@@ -138,7 +128,6 @@ public class JobConfig {
                 .build();
     }
 
-    @StepScope
     @Bean
     public JdbcBatchItemWriter<AuthorDto> authorWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<AuthorDto>()
@@ -148,7 +137,6 @@ public class JobConfig {
                 .build();
     }
 
-    @StepScope
     @Bean
     public JdbcBatchItemWriter<GenreDto> genreWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<GenreDto>()
@@ -158,28 +146,15 @@ public class JobConfig {
                 .build();
     }
 
-
-    @Bean
-    public MethodInvokingTaskletAdapter cleanUpTasklet(CleanUpService cleanUpService) {
-        MethodInvokingTaskletAdapter adapter = new MethodInvokingTaskletAdapter();
-
-        adapter.setTargetObject(cleanUpService);
-        adapter.setTargetMethod("cleanUp");
-
-        return adapter;
-    }
-
-
     @Bean
     public Job importUserJob(Step transformAuthorsStep, Step transformGenresStep, Step transformCommentsStep,
-                             Step transformBooksStep, Step cleanUpStep) {
+                             Step transformBooksStep) {
         return new JobBuilder(IMPORT_USER_JOB_NAME, jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .flow(transformAuthorsStep)
                 .next(transformGenresStep)
                 .next(transformBooksStep)
                 .next(transformCommentsStep)
-                .next(cleanUpStep)
                 .end()
                 .listener(new JobExecutionListener() {
                     @Override
@@ -251,13 +226,6 @@ public class JobConfig {
                 .listener(new ItemReadListenerImpl<>(logger))
                 .listener(new ItemWriteListenerImpl<>(logger))
                 .listener(new ChunkListenerImpl(logger))
-                .build();
-    }
-
-    @Bean
-    public Step cleanUpStep() {
-        return new StepBuilder("cleanUpStep", jobRepository)
-                .tasklet(cleanUpTasklet(), platformTransactionManager)
                 .build();
     }
 }
