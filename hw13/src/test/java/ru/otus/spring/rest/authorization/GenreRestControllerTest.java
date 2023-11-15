@@ -10,6 +10,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.otus.spring.domain.Genre;
+import ru.otus.spring.domain.SimpleAuthority;
 import ru.otus.spring.dto.GenreDto;
 import ru.otus.spring.restController.GenreRestController;
 import ru.otus.spring.security.SecurityConfiguration;
@@ -20,6 +21,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,25 +50,17 @@ public class GenreRestControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user")
     void genreApiTestAuthorized() throws Exception {
         given(genreService.getAll()).willReturn(List.of());
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/genre")).andExpect(status().isOk());
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/genre").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/genre/1").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithMockUser(username = "admin", roles = "ADMIN")
-    void genreApiTestAuthorizedAsAdmin() throws Exception {
-        given(genreService.getAll()).willReturn(List.of());
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/genre")).andExpect(status().isOk());
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/genre").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/genre/1").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+        var users = List.of(user("user"), user("admin").authorities(
+                List.of(new SimpleAuthority("ADMIN"))));
+        for (var user : users) {
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/genre").with(user)).andExpect(status().isOk());
+            mockMvc.perform(MockMvcRequestBuilders.put("/api/genre").with(user).with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/genre/1").with(user).with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+        }
     }
 
     @Test
