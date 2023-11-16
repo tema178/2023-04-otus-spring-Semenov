@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db
+    username: postgres
+    password: postgres
+
+  sql:
+    init:
+      mode: always
+  h2:
+    console:
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+  jpa:
+    defer-datasource-initialization: true
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+
+    show-sql: true
+
+  logging:
+    level:
+      ROOT: ERROR
