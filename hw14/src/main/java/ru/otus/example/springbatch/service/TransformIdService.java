@@ -1,6 +1,5 @@
 package ru.otus.example.springbatch.service;
 
-import lombok.Getter;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Service;
 import ru.otus.example.springbatch.model.Author;
@@ -12,21 +11,16 @@ import ru.otus.example.springbatch.model.h2.BookDto;
 import ru.otus.example.springbatch.model.h2.CommentDto;
 import ru.otus.example.springbatch.model.h2.GenreDto;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class TransformIdService {
 
-    private final Map<String, Long> authorIdMapping = new HashMap<>();
-    private final Map<String, Long> genreIdMapping = new HashMap<>();
-    private final Map<String, Long> bookIdMapping = new HashMap<>();
-
-    @Getter
-    private final List<CommentDto> comments = new ArrayList<>();
+    private final Map<String, Long> authorIdMapping = new ConcurrentHashMap<>();
+    private final Map<String, Long> genreIdMapping = new ConcurrentHashMap<>();
 
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
@@ -37,13 +31,17 @@ public class TransformIdService {
 
     public BookDto transform(BookWithComments book) {
         var id = getSequence("BOOK_SEQUENCE");
-        bookIdMapping.put(book.getId(), id);
         List<CommentDto> bookComments = commentToDto(book.getComments(), id);
-        comments.addAll(bookComments);
+        namedParameterJdbcOperations.getJdbcOperations().batchUpdate("insert into COMMENTS (ID, BODY, BOOK_ID) values (?, ?, ?)", bookComments, bookComments.size(),
+                (ps, comment) -> {
+                    ps.setLong(1, comment.getId());
+                    ps.setString(2, comment.getBody());
+                    ps.setLong(3, comment.getBookId());
+                });
         return new BookDto(id, book.getName(),
                 new AuthorDto(authorIdMapping.get(book.getAuthor().getId()), book.getAuthor().getName()),
                 new GenreDto(genreIdMapping.get(book.getGenre().getId()), book.getGenre().getName()),
-                comments);
+                bookComments);
     }
 
     public CommentDto toDto(Comment comment, Long bookId) {

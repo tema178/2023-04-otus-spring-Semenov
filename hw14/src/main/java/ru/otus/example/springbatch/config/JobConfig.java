@@ -6,11 +6,11 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.core.step.tasklet.MethodInvokingTaskletAdapter;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -19,7 +19,6 @@ import org.springframework.batch.item.data.builder.MongoItemReaderBuilder;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
-import org.springframework.batch.item.support.IteratorItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,8 +33,8 @@ import ru.otus.example.springbatch.model.BookWithComments;
 import ru.otus.example.springbatch.model.Genre;
 import ru.otus.example.springbatch.model.h2.AuthorDto;
 import ru.otus.example.springbatch.model.h2.BookDto;
-import ru.otus.example.springbatch.model.h2.CommentDto;
 import ru.otus.example.springbatch.model.h2.GenreDto;
+import ru.otus.example.springbatch.service.ReferenceConstraintAddingService;
 import ru.otus.example.springbatch.service.TransformIdService;
 
 import javax.sql.DataSource;
@@ -56,6 +55,9 @@ public class JobConfig {
     @Autowired
     private PlatformTransactionManager platformTransactionManager;
 
+    @Autowired
+    private ReferenceConstraintAddingService constraintAddingService;
+
     @Bean
     public MongoItemReader<BookWithComments> bookReader(MongoTemplate template) {
         return new MongoItemReaderBuilder<BookWithComments>()
@@ -67,12 +69,6 @@ public class JobConfig {
                 .build();
     }
 
-    @StepScope
-    @Bean
-    public IteratorItemReader<CommentDto> commentReader(TransformIdService libraryIdService) {
-        return new IteratorItemReader<>(libraryIdService.getComments());
-    }
-    
     @Bean
     public MongoItemReader<Author> authorReader(MongoTemplate template) {
         return new MongoItemReaderBuilder<Author>()
@@ -120,15 +116,6 @@ public class JobConfig {
     }
 
     @Bean
-    public JdbcBatchItemWriter<CommentDto> commentWriter(DataSource dataSource) {
-        return new JdbcBatchItemWriterBuilder<CommentDto>()
-                .dataSource(dataSource)
-                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("insert into COMMENTS (ID, BODY, BOOK_ID) values (:id, :body, :bookId)")
-                .build();
-    }
-
-    @Bean
     public JdbcBatchItemWriter<AuthorDto> authorWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<AuthorDto>()
                 .dataSource(dataSource)
@@ -147,14 +134,14 @@ public class JobConfig {
     }
 
     @Bean
-    public Job importUserJob(Step transformAuthorsStep, Step transformGenresStep, Step transformCommentsStep,
-                             Step transformBooksStep) {
+    public Job importUserJob(Step transformAuthorsStep, Step transformGenresStep,
+                             Step transformBooksStep, Step referenceConstraintAddingStep) {
         return new JobBuilder(IMPORT_USER_JOB_NAME, jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .flow(transformAuthorsStep)
                 .next(transformGenresStep)
                 .next(transformBooksStep)
-                .next(transformCommentsStep)
+                .next(referenceConstraintAddingStep)
                 .end()
                 .listener(new JobExecutionListener() {
                     @Override
@@ -200,19 +187,6 @@ public class JobConfig {
                 .build();
     }
 
-    @Bean
-    public Step transformCommentsStep(ItemReader<CommentDto> reader,
-                                      ItemWriter<CommentDto> writer) {
-        return new StepBuilder("transformCommentsStep", jobRepository)
-                .<CommentDto, CommentDto>chunk(CHUNK_SIZE, platformTransactionManager)
-                .reader(reader)
-                .writer(writer)
-                .listener(new ItemReadListenerImpl<>(logger))
-                .listener(new ItemWriteListenerImpl<>(logger))
-                .listener(new ChunkListenerImpl(logger))
-                .build();
-    }
-
 
     @Bean
     public Step transformBooksStep(ItemReader<BookWithComments> reader,
@@ -226,6 +200,21 @@ public class JobConfig {
                 .listener(new ItemReadListenerImpl<>(logger))
                 .listener(new ItemWriteListenerImpl<>(logger))
                 .listener(new ChunkListenerImpl(logger))
+                .build();
+    }
+
+    @Bean
+    public MethodInvokingTaskletAdapter referenceConstraintAddingTasklet() {
+        MethodInvokingTaskletAdapter adapter = new MethodInvokingTaskletAdapter();
+        adapter.setTargetObject(constraintAddingService);
+        adapter.setTargetMethod("addCommentToBookReference");
+        return adapter;
+    }
+
+    @Bean
+    public Step referenceConstraintAddingStep() {
+        return new StepBuilder("referenceConstraintAddingStep", jobRepository)
+                .tasklet(referenceConstraintAddingTasklet(), platformTransactionManager)
                 .build();
     }
 }

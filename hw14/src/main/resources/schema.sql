@@ -37,6 +37,6 @@ drop table IF EXISTS COMMENTS;
 create TABLE COMMENTS
 (
     ID BIGINT PRIMARY KEY AUTO_INCREMENT,
-    BOOK_ID BIGINT references BOOKS(id) on delete cascade,
+    BOOK_ID BIGINT,
     BODY VARCHAR(2047)
 );
