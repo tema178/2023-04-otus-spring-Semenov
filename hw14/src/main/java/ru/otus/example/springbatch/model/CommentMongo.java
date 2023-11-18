@@ -10,10 +10,12 @@ import org.springframework.data.annotation.Id;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Comment {
+public class CommentMongo {
 
     @Id
     private String id;
 
     private String text;
+
+    private String bookId;
 }

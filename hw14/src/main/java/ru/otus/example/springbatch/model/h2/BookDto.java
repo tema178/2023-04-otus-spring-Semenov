@@ -3,8 +3,6 @@ package ru.otus.example.springbatch.model.h2;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 public class BookDto {
@@ -16,7 +14,4 @@ public class BookDto {
     private AuthorDto author;
 
     private GenreDto genre;
-
-    private List<CommentDto> comments;
-
 }

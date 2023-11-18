@@ -10,7 +10,6 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.core.step.tasklet.MethodInvokingTaskletAdapter;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -23,18 +22,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.PlatformTransactionManager;
+import ru.otus.example.springbatch.customReader.MongoDBCommentItemReader;
 import ru.otus.example.springbatch.listeners.ChunkListenerImpl;
 import ru.otus.example.springbatch.listeners.ItemReadListenerImpl;
 import ru.otus.example.springbatch.listeners.ItemWriteListenerImpl;
 import ru.otus.example.springbatch.model.Author;
-import ru.otus.example.springbatch.model.BookWithComments;
+import ru.otus.example.springbatch.model.Book;
+import ru.otus.example.springbatch.model.CommentMongo;
 import ru.otus.example.springbatch.model.Genre;
 import ru.otus.example.springbatch.model.h2.AuthorDto;
 import ru.otus.example.springbatch.model.h2.BookDto;
+import ru.otus.example.springbatch.model.h2.CommentDto;
 import ru.otus.example.springbatch.model.h2.GenreDto;
-import ru.otus.example.springbatch.service.ReferenceConstraintAddingService;
 import ru.otus.example.springbatch.service.TransformIdService;
 
 import javax.sql.DataSource;
@@ -55,18 +57,30 @@ public class JobConfig {
     @Autowired
     private PlatformTransactionManager platformTransactionManager;
 
-    @Autowired
-    private ReferenceConstraintAddingService constraintAddingService;
-
     @Bean
-    public MongoItemReader<BookWithComments> bookReader(MongoTemplate template) {
-        return new MongoItemReaderBuilder<BookWithComments>()
+    public MongoItemReader<Book> bookReader(MongoTemplate template) {
+        return new MongoItemReaderBuilder<Book>()
                 .name("bookItemReader")
-                .targetType(BookWithComments.class)
+                .targetType(Book.class)
                 .template(template)
                 .jsonQuery("{}")
                 .sorts(Map.of())
                 .build();
+    }
+
+    @Bean
+    public MongoItemReader<CommentMongo> commentReader(MongoTemplate template) {
+        MongoDBCommentItemReader<CommentMongo> reader = new MongoDBCommentItemReader<>();
+        reader.setTemplate(template);
+        reader.setQuery("{}");
+        reader.setSort(Map.of());
+        reader.setName("commentItemReader");
+        reader.setType(CommentMongo.class);
+        reader.setTargetType(CommentMongo.class);
+        reader.setCollection("books");
+        reader.setUnwind(Aggregation.unwind("comments"));
+        reader.setProjection(Aggregation.project().and("comments.text").as("text").and("_id").as("bookId"));
+        return reader;
     }
 
     @Bean
@@ -92,7 +106,12 @@ public class JobConfig {
     }
 
     @Bean
-    public ItemProcessor<BookWithComments, BookDto> bookProcessor(TransformIdService service) {
+    public ItemProcessor<Book, BookDto> bookProcessor(TransformIdService service) {
+        return service::transform;
+    }
+
+    @Bean
+    public ItemProcessor<CommentMongo, CommentDto> commentProcessor(TransformIdService service) {
         return service::transform;
     }
 
@@ -125,6 +144,15 @@ public class JobConfig {
     }
 
     @Bean
+    public JdbcBatchItemWriter<CommentDto> commentWriter(DataSource dataSource) {
+        return new JdbcBatchItemWriterBuilder<CommentDto>()
+                .dataSource(dataSource)
+                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
+                .sql("insert into COMMENTS (ID, BODY, BOOK_ID) values (:id, :body, :bookId)")
+                .build();
+    }
+
+    @Bean
     public JdbcBatchItemWriter<GenreDto> genreWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<GenreDto>()
                 .dataSource(dataSource)
@@ -135,13 +163,13 @@ public class JobConfig {
 
     @Bean
     public Job importUserJob(Step transformAuthorsStep, Step transformGenresStep,
-                             Step transformBooksStep, Step referenceConstraintAddingStep) {
+                             Step transformBooksStep, Step transformCommentsStep) {
         return new JobBuilder(IMPORT_USER_JOB_NAME, jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .flow(transformAuthorsStep)
                 .next(transformGenresStep)
                 .next(transformBooksStep)
-                .next(referenceConstraintAddingStep)
+                .next(transformCommentsStep)
                 .end()
                 .listener(new JobExecutionListener() {
                     @Override
@@ -187,13 +215,12 @@ public class JobConfig {
                 .build();
     }
 
-
     @Bean
-    public Step transformBooksStep(ItemReader<BookWithComments> reader,
-                                   ItemWriter<BookDto> writer,
-                                   ItemProcessor<BookWithComments, BookDto> itemProcessor) {
-        return new StepBuilder("transformBooksStep", jobRepository)
-                .<BookWithComments, BookDto>chunk(CHUNK_SIZE, platformTransactionManager)
+    public Step transformCommentsStep(ItemReader<CommentMongo> reader,
+                                      ItemWriter<CommentDto> writer,
+                                      ItemProcessor<CommentMongo, CommentDto> itemProcessor) {
+        return new StepBuilder("transformGenresStep", jobRepository)
+                .<CommentMongo, CommentDto>chunk(CHUNK_SIZE, platformTransactionManager)
                 .reader(reader)
                 .processor(itemProcessor)
                 .writer(writer)
@@ -203,18 +230,19 @@ public class JobConfig {
                 .build();
     }
 
-    @Bean
-    public MethodInvokingTaskletAdapter referenceConstraintAddingTasklet() {
-        MethodInvokingTaskletAdapter adapter = new MethodInvokingTaskletAdapter();
-        adapter.setTargetObject(constraintAddingService);
-        adapter.setTargetMethod("addCommentToBookReference");
-        return adapter;
-    }
 
     @Bean
-    public Step referenceConstraintAddingStep() {
-        return new StepBuilder("referenceConstraintAddingStep", jobRepository)
-                .tasklet(referenceConstraintAddingTasklet(), platformTransactionManager)
+    public Step transformBooksStep(ItemReader<Book> reader,
+                                   ItemWriter<BookDto> writer,
+                                   ItemProcessor<Book, BookDto> itemProcessor) {
+        return new StepBuilder("transformBooksStep", jobRepository)
+                .<Book, BookDto>chunk(CHUNK_SIZE, platformTransactionManager)
+                .reader(reader)
+                .processor(itemProcessor)
+                .writer(writer)
+                .listener(new ItemReadListenerImpl<>(logger))
+                .listener(new ItemWriteListenerImpl<>(logger))
+                .listener(new ChunkListenerImpl(logger))
                 .build();
     }
 }
