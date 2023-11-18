@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:test-data.sql
+
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+
+    show-sql: true
+
+  logging:
+    file:
+      name: /opt/project/logs/hw-17.log
+    level:
+      ROOT: INFO
+      org.springframework: INFO
+      org.springframework.transaction: INFO
+      org.springframework.security: INFO

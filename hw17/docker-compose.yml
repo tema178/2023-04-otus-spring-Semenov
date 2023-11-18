@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  postgres:
+    image: "postgres:13"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=db
+    ports:
+      - "5432:5432"
+    networks:
+      - main_lan
+  backend:
+    build: .
+    image: hw-17-image:latest
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - main_lan
+    depends_on:
+      - postgres
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+networks:
+  main_lan:
