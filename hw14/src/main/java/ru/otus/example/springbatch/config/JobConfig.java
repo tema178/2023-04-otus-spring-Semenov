@@ -75,7 +75,6 @@ public class JobConfig {
         reader.setQuery("{}");
         reader.setSort(Map.of());
         reader.setName("commentItemReader");
-        reader.setType(CommentMongo.class);
         reader.setTargetType(CommentMongo.class);
         reader.setCollection("books");
         reader.setUnwind(Aggregation.unwind("comments"));
