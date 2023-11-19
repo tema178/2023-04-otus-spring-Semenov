@@ -10,6 +10,7 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.core.step.tasklet.MethodInvokingTaskletAdapter;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -37,6 +38,8 @@ import ru.otus.example.springbatch.model.h2.AuthorDto;
 import ru.otus.example.springbatch.model.h2.BookDto;
 import ru.otus.example.springbatch.model.h2.CommentDto;
 import ru.otus.example.springbatch.model.h2.GenreDto;
+import ru.otus.example.springbatch.service.CleanMongoIdsService;
+import ru.otus.example.springbatch.service.FillCacheService;
 import ru.otus.example.springbatch.service.TransformIdService;
 
 import javax.sql.DataSource;
@@ -56,6 +59,12 @@ public class JobConfig {
 
     @Autowired
     private PlatformTransactionManager platformTransactionManager;
+
+    @Autowired
+    private FillCacheService fillCacheService;
+
+    @Autowired
+    private TransformIdService transformIdService;
 
     @Bean
     public MongoItemReader<Book> bookReader(MongoTemplate template) {
@@ -105,23 +114,23 @@ public class JobConfig {
     }
 
     @Bean
-    public ItemProcessor<Book, BookDto> bookProcessor(TransformIdService service) {
-        return service::transform;
+    public ItemProcessor<Book, BookDto> bookProcessor() {
+        return transformIdService::transform;
     }
 
     @Bean
-    public ItemProcessor<CommentMongo, CommentDto> commentProcessor(TransformIdService service) {
-        return service::transform;
+    public ItemProcessor<CommentMongo, CommentDto> commentProcessor() {
+        return transformIdService::transform;
     }
 
     @Bean
-    public ItemProcessor<Author, AuthorDto> authorProcessor(TransformIdService service) {
-        return service::transform;
+    public ItemProcessor<Author, AuthorDto> authorProcessor() {
+        return transformIdService::transform;
     }
 
     @Bean
-    public ItemProcessor<Genre, GenreDto> genreProcessor(TransformIdService service) {
-        return service::transform;
+    public ItemProcessor<Genre, GenreDto> genreProcessor() {
+        return transformIdService::transform;
     }
 
     @Bean
@@ -129,7 +138,7 @@ public class JobConfig {
         return new JdbcBatchItemWriterBuilder<BookDto>()
                 .dataSource(dataSource)
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("insert into BOOKS (ID, NAME, AUTHOR_ID, GENRE_ID) values (:id, :name, :author.id, :genre.id)")
+                .sql("insert into BOOKS (NAME, AUTHOR_ID, GENRE_ID, MONGO_ID) values (:name, :author, :genre, :mongoId)")
                 .build();
     }
 
@@ -138,7 +147,7 @@ public class JobConfig {
         return new JdbcBatchItemWriterBuilder<AuthorDto>()
                 .dataSource(dataSource)
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("insert into AUTHORS (ID, NAME) values (:id, :name)")
+                .sql("insert into AUTHORS (NAME, MONGO_ID) values (:name, :mongoId)")
                 .build();
     }
 
@@ -147,7 +156,7 @@ public class JobConfig {
         return new JdbcBatchItemWriterBuilder<CommentDto>()
                 .dataSource(dataSource)
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("insert into COMMENTS (ID, BODY, BOOK_ID) values (:id, :body, :bookId)")
+                .sql("insert into COMMENTS (BODY, BOOK_ID) values (:body, :bookId)")
                 .build();
     }
 
@@ -156,19 +165,24 @@ public class JobConfig {
         return new JdbcBatchItemWriterBuilder<GenreDto>()
                 .dataSource(dataSource)
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("insert into GENRES (ID, NAME) values (:id, :name)")
+                .sql("insert into GENRES (NAME, MONGO_ID) values (:name, :mongoId)")
                 .build();
     }
 
     @Bean
     public Job importUserJob(Step transformAuthorsStep, Step transformGenresStep,
-                             Step transformBooksStep, Step transformCommentsStep) {
+                             Step transformBooksStep, Step transformCommentsStep,
+                             Step cleanMongoIdsStep) {
         return new JobBuilder(IMPORT_USER_JOB_NAME, jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .flow(transformAuthorsStep)
+                .next(fillCacheStep("AUTHORS", transformIdService.getAuthorIdMapping()))
                 .next(transformGenresStep)
+                .next(fillCacheStep("GENRES", transformIdService.getGenreIdMapping()))
                 .next(transformBooksStep)
+                .next(fillCacheStep("BOOKS", transformIdService.getBookIdMapping()))
                 .next(transformCommentsStep)
+                .next(cleanMongoIdsStep)
                 .end()
                 .listener(new JobExecutionListener() {
                     @Override
@@ -244,4 +258,34 @@ public class JobConfig {
                 .listener(new ChunkListenerImpl(logger))
                 .build();
     }
+
+    public MethodInvokingTaskletAdapter cleanUpTasklet(String tableName, Map<String, Long> cache) {
+        MethodInvokingTaskletAdapter adapter = new MethodInvokingTaskletAdapter();
+        adapter.setTargetObject(fillCacheService);
+        adapter.setTargetMethod("fillCache");
+        adapter.setArguments(new Object[]{tableName, cache});
+        return adapter;
+    }
+
+    public Step fillCacheStep(String tableName, Map<String, Long> cache) {
+        return new StepBuilder(tableName + "fillCacheStep", jobRepository)
+                .tasklet(cleanUpTasklet(tableName, cache), platformTransactionManager)
+                .build();
+    }
+
+    @Bean
+    public MethodInvokingTaskletAdapter cleanMongoIdsTasklet(CleanMongoIdsService cleanMongoIdsService) {
+        MethodInvokingTaskletAdapter adapter = new MethodInvokingTaskletAdapter();
+        adapter.setTargetObject(cleanMongoIdsService);
+        adapter.setTargetMethod("cleanIds");
+        return adapter;
+    }
+
+    @Bean
+    public Step cleanMongoIdsStep(MethodInvokingTaskletAdapter cleanMongoIdsTasklet) {
+        return new StepBuilder("cleanMongoIds", jobRepository)
+                .tasklet(cleanMongoIdsTasklet, platformTransactionManager)
+                .build();
+    }
+
 }

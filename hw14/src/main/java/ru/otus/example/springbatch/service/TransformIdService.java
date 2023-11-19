@@ -1,5 +1,6 @@
 package ru.otus.example.springbatch.service;
 
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 import ru.otus.example.springbatch.model.Author;
 import ru.otus.example.springbatch.model.Book;
@@ -12,42 +13,31 @@ import ru.otus.example.springbatch.model.h2.GenreDto;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
+@Getter
 @Service
 public class TransformIdService {
 
-    private static final Map<String, Long> authorIdMapping = new ConcurrentHashMap<>();
-    private static final Map<String, Long> genreIdMapping = new ConcurrentHashMap<>();
-    private static final Map<String, Long> bookIdMapping = new ConcurrentHashMap<>();
-
-    private static final AtomicLong authorIncrement = new AtomicLong(100);
-    private static final AtomicLong genreIncrement = new AtomicLong(100);
-    private static final AtomicLong bookIncrement = new AtomicLong(100);
-    private static final AtomicLong commentIncrement = new AtomicLong(100);
+    private final Map<String, Long> authorIdMapping = new ConcurrentHashMap<>();
+    private final Map<String, Long> genreIdMapping = new ConcurrentHashMap<>();
+    private final Map<String, Long> bookIdMapping = new ConcurrentHashMap<>();
 
     public BookDto transform(Book book) {
-        long id = bookIncrement.getAndAdd(1);
-        bookIdMapping.put(book.getId(), id);
-        return new BookDto(id, book.getName(),
-                new AuthorDto(authorIdMapping.get(book.getAuthor().getId()), book.getAuthor().getName()),
-                new GenreDto(genreIdMapping.get(book.getGenre().getId()), book.getGenre().getName()));
+        return new BookDto(book.getName(),
+                authorIdMapping.get(book.getAuthor().getId()),
+                genreIdMapping.get(book.getGenre().getId()),
+                book.getId());
     }
 
     public CommentDto transform(CommentMongo comment) {
-        long id = commentIncrement.getAndAdd(1);
-        return new CommentDto(id, comment.getText(), bookIdMapping.get(comment.getBookId()));
+        return new CommentDto(comment.getText(), bookIdMapping.get(comment.getBookId()));
     }
 
     public AuthorDto transform(Author author) {
-        long id = authorIncrement.getAndAdd(1);
-        authorIdMapping.put(author.getId(), id);
-        return new AuthorDto(id, author.getName());
+        return new AuthorDto(author.getName(), author.getId());
     }
 
     public GenreDto transform(Genre author) {
-        long id = genreIncrement.getAndAdd(1);
-        genreIdMapping.put(author.getId(), id);
-        return new GenreDto(id, author.getName());
+        return new GenreDto(author.getName(), author.getId());
     }
 }
